@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>camunda-bpm-run-modules-rest</artifactId>
-  <name>Camunda Platform - Run - Module REST</name>
+  <name>Samanvay BPM Platform - Run - Module REST</name>
   <packaging>pom</packaging>
 
   <description>

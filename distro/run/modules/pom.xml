@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>camunda-bpm-run-modules</artifactId>
-  <name>Camunda Platform - Run - Modules</name>
+  <name>Samanvay BPM Platform - Run - Modules</name>
   <packaging>pom</packaging>
 
   <description>

@@ -30,7 +30,7 @@ public class CamundaBpmRunLogger extends BaseLogger {
   public void processEnginePluginRegistered(String pluginClass) {
       logInfo("001",
               "The process engine plugin '{}' was registered with the " +
-                  "Camunda Run process engine.",
+                  "Samanvay Run process engine.",
               pluginClass);
   }
 

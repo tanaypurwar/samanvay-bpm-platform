@@ -2,7 +2,7 @@
 
 set "JBOSS_HOME=%CD%\server\wildfly-${version.wildfly}"
 
-echo "starting Camunda Platform ${project.version} on Wildfly Application Server ${version.wildfly}"
+echo "starting Samanvay BPM Platform ${project.version} on Wildfly Application Server ${version.wildfly}"
 
 cd server\wildfly-${version.wildfly}\bin\
 start standalone.bat

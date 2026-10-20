@@ -13,7 +13,7 @@
   </parent>
 
   <artifactId>camunda-bpm-run-modules-example-invoice</artifactId>
-  <name>Camunda Platform - Run - Module Example Invoice</name>
+  <name>Samanvay BPM Platform - Run - Module Example Invoice</name>
   
   <properties>
     <!-- generate a bom of compile time dependencies for the license book.

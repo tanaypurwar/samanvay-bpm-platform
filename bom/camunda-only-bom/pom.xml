@@ -11,7 +11,7 @@
 
   <artifactId>camunda-only-bom</artifactId>
   <packaging>pom</packaging>
-  <name>Camunda Platform Only - Bom</name>
+  <name>Samanvay BPM Platform Only - Bom</name>
   <url>http://camunda.org</url>
 
   <description>

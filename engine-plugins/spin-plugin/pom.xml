@@ -13,7 +13,7 @@
   </description>
 
   <artifactId>camunda-engine-plugin-spin</artifactId>
-  <name>Camunda Platform - engine plugins - spin</name>
+  <name>Samanvay BPM Platform - engine plugins - spin</name>
 
   <dependencies>
 

@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>camunda-connect-soap-http-client</artifactId>
-  <name>Camunda Platform - connect - soap http client</name>
+  <name>Samanvay BPM Platform - connect - soap http client</name>
 
   <dependencies>
 

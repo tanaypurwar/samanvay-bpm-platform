@@ -13,7 +13,7 @@
   <groupId>org.camunda.connect</groupId>
   <artifactId>camunda-connect-bom</artifactId>
   <version>7.24.0-SNAPSHOT</version>
-  <name>Camunda Platform - connect - bom</name>
+  <name>Samanvay BPM Platform - connect - bom</name>
   <packaging>pom</packaging>
 
   <description>

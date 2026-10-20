@@ -6,7 +6,7 @@
   </description>
 
   <artifactId>camunda-qa-integration-tests-webapps</artifactId>
-  <name>Camunda Platform - QA Integration Tests - Webapps ITs</name>
+  <name>Samanvay BPM Platform - QA Integration Tests - Webapps ITs</name>
 
   <parent>
     <groupId>org.camunda.bpm.qa</groupId>

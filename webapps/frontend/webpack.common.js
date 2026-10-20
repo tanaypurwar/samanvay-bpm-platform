@@ -128,7 +128,7 @@ module.exports = (_env, argv = {}) => {
               options: {
                 lessOptions: {
                   globalVars: {
-                    'ce-banner-height': eeBuild ? '0' : '20px'
+                    'ce-banner-height': '0'
                   }
                 }
               }
