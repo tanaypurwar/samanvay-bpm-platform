@@ -1,0 +1,54 @@
+{
+  "formKey": "invoice-approval",
+  "name": "Approve invoice",
+  "schema": {
+    "title": "Approve invoice",
+    "type": "object",
+    "required": ["decision"],
+    "properties": {
+      "invoiceNumber": { "type": "string", "title": "Invoice number", "readOnly": true },
+      "vendor": { "type": "string", "title": "Vendor", "readOnly": true },
+      "amount": { "type": "number", "title": "Amount (INR)", "readOnly": true },
+      "invoiceDate": { "type": "string", "format": "date", "title": "Invoice date", "readOnly": true },
+      "decision": {
+        "type": "string",
+        "title": "Decision",
+        "oneOf": [
+          { "const": "approve", "title": "Approve" },
+          { "const": "reject", "title": "Reject" }
+        ]
+      },
+      "costCenter": {
+        "type": "string",
+        "title": "Cost center",
+        "oneOf": [
+          { "const": "OPS", "title": "Operations" },
+          { "const": "IT", "title": "Information Technology" },
+          { "const": "HR", "title": "Human Resources" },
+          { "const": "FIN", "title": "Finance" }
+        ]
+      },
+      "paymentDueDate": { "type": "string", "format": "date", "title": "Payment due date" },
+      "comment": { "type": "string", "title": "Comment", "maxLength": 1000 }
+    },
+    "allOf": [
+      {
+        "if": { "properties": { "decision": { "const": "approve" } }, "required": ["decision"] },
+        "then": { "required": ["costCenter", "paymentDueDate"] }
+      },
+      {
+        "if": { "properties": { "decision": { "const": "reject" } }, "required": ["decision"] },
+        "then": { "required": ["comment"], "properties": { "comment": { "minLength": 10 } } }
+      }
+    ]
+  },
+  "uiSchema": {
+    "ui:order": ["invoiceNumber", "vendor", "amount", "invoiceDate", "decision", "costCenter", "paymentDueDate", "comment"],
+    "decision": { "ui:widget": "radio" },
+    "comment": {
+      "ui:widget": "textarea",
+      "ui:options": { "rows": 4 },
+      "ui:help": "Required when rejecting (at least 10 characters)."
+    }
+  }
+}

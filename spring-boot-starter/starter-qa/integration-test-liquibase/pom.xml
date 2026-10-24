@@ -14,7 +14,7 @@
   </parent>
 
   <artifactId>qa-liquibase</artifactId>
-  <name>Camunda Platform - Spring Boot Starter - QA - Liquibase</name>
+  <name>Samanvay BPM Platform - Spring Boot Starter - QA - Liquibase</name>
 
   <dependencies>
 

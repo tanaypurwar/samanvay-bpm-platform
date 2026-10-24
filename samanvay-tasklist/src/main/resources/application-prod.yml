@@ -1,0 +1,19 @@
+# Production: PostgreSQL, tasklist tables in their own schema (separate from engine ACT_* tables).
+spring:
+  datasource:
+    url: ${SAMANVAY_TASKLIST_DB_URL:jdbc:postgresql://localhost:5432/samanvay}
+    username: ${SAMANVAY_TASKLIST_DB_USERNAME:tasklist}
+    password: ${SAMANVAY_TASKLIST_DB_PASSWORD}
+  flyway:
+    schemas: tasklist
+    default-schema: tasklist
+  jpa:
+    properties:
+      hibernate:
+        default_schema: tasklist
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true

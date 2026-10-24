@@ -13,7 +13,7 @@
   <description>
     Note: 7.24.0 is the last community edition release published on Maven Central. This library will not receive any new versions or releases. However, if you are interested in extended maintenance you could look into our enterprise edition. Get in touch with us: https://camunda.com/contact/
   </description>
-  <name>Camunda Platform - Wildfly Modules</name>
+  <name>Samanvay BPM Platform - Wildfly Modules</name>
 
   <properties>
     <org.jboss.shrinkwrap.resolver.version>1.0.0-beta-5</org.jboss.shrinkwrap.resolver.version>

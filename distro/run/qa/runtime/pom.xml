@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>camunda-bpm-run-qa-runtime</artifactId>
-  <name>Camunda Platform - Run - QA - Runtime</name>
+  <name>Samanvay BPM Platform - Run - QA - Runtime</name>
   <packaging>jar</packaging>
 
   <description>

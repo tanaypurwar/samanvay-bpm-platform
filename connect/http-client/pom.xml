@@ -13,7 +13,7 @@
   </description>
 
   <artifactId>camunda-connect-http-client</artifactId>
-  <name>Camunda Platform - connect - http client</name>
+  <name>Samanvay BPM Platform - connect - http client</name>
 
   <dependencies>
 

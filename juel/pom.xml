@@ -15,7 +15,7 @@
 
   <groupId>org.camunda.bpm.juel</groupId>
   <artifactId>camunda-juel</artifactId>
-  <name>Camunda Platform - JUEL</name>
+  <name>Samanvay BPM Platform - JUEL</name>
 
   <properties>
     <!-- We only wrap and maintain external code in here that has

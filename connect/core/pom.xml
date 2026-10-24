@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>camunda-connect-core</artifactId>
-  <name>Camunda Platform - connect - core</name>
+  <name>Samanvay BPM Platform - connect - core</name>
 
   <dependencies>
 

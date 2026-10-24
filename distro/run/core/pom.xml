@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>camunda-bpm-run-core</artifactId>
-  <name>Camunda Platform - Run - Core</name>
+  <name>Samanvay BPM Platform - Run - Core</name>
   <packaging>jar</packaging>
 
   <description>

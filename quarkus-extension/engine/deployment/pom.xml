@@ -15,7 +15,7 @@
 
   <artifactId>camunda-bpm-quarkus-engine-deployment</artifactId>
 
-  <name>Camunda Platform - Quarkus Extension - Engine - Deployment</name>
+  <name>Samanvay BPM Platform - Quarkus Extension - Engine - Deployment</name>
 
   <dependencies>
 

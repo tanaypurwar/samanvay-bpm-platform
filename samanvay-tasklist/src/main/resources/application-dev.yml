@@ -1,0 +1,9 @@
+# Local development: file-based H2, no external database needed.
+spring:
+  datasource:
+    url: jdbc:h2:file:./target/tasklist-db/tasklist;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password: sa
+  flyway:
+    # adds the example "invoice-approval" form
+    locations: classpath:db/migration,classpath:db/dev-seed

@@ -13,7 +13,7 @@
   </description>
 
   <artifactId>camunda-engine-plugin-connect</artifactId>
-  <name>Camunda Platform - engine plugins - connect</name>
+  <name>Samanvay BPM Platform - engine plugins - connect</name>
 
   <dependencies>
 
