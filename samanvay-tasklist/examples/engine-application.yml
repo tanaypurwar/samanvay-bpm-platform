@@ -1,0 +1,26 @@
+# Example engine configuration (Camunda Run from this fork: distro/run, file configuration/default.yml)
+# for running the engine next to Samanvay Tasklist.
+#
+# - REST API auth is on: the tasklist calls the engine with a service account (SAMANVAY_ENGINE_USERNAME/PASSWORD).
+# - No CORS: browsers only talk to the tasklist backend, never to /engine-rest directly.
+# - The service account needs, when authorization is enabled: READ/UPDATE/TASK_WORK on Task, READ on
+#   ProcessDefinition, User and Group. Membership of camunda-admin covers this for a pilot.
+
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+  authorization:
+    enabled: true
+  run:
+    auth:
+      enabled: true
+    cors:
+      enabled: false
+
+# Engine on PostgreSQL. The tasklist uses the same server with its own "tasklist" schema and user.
+spring.datasource:
+  url: jdbc:postgresql://localhost:5432/samanvay
+  username: camunda
+  password: camunda
+  driver-class-name: org.postgresql.Driver

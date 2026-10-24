@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="invoice-approval-definitions"
+                  targetNamespace="http://samanvay.com/bpmn/examples">
+
+  <bpmn:process id="invoice-approval" name="Invoice approval" isExecutable="true" camunda:historyTimeToLive="P30D">
+
+    <bpmn:startEvent id="invoiceReceived" name="Invoice received">
+      <bpmn:outgoing>toApprove</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- samanvay:<form_key> tells Samanvay Tasklist which configured form to render -->
+    <bpmn:userTask id="approveInvoice" name="Approve invoice"
+                   camunda:formKey="samanvay:invoice-approval"
+                   camunda:candidateGroups="camunda-admin,accounting">
+      <bpmn:incoming>toApprove</bpmn:incoming>
+      <bpmn:outgoing>toDecision</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="decisionGateway" name="Approved?">
+      <bpmn:incoming>toDecision</bpmn:incoming>
+      <bpmn:outgoing>approvedFlow</bpmn:outgoing>
+      <bpmn:outgoing>rejectedFlow</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="invoiceApproved" name="Invoice approved">
+      <bpmn:incoming>approvedFlow</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="invoiceRejected" name="Invoice rejected">
+      <bpmn:incoming>rejectedFlow</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="toApprove" sourceRef="invoiceReceived" targetRef="approveInvoice"/>
+    <bpmn:sequenceFlow id="toDecision" sourceRef="approveInvoice" targetRef="decisionGateway"/>
+    <bpmn:sequenceFlow id="approvedFlow" name="yes" sourceRef="decisionGateway" targetRef="invoiceApproved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'approve'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="rejectedFlow" name="no" sourceRef="decisionGateway" targetRef="invoiceRejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'reject'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="invoice-approval-diagram">
+    <bpmndi:BPMNPlane id="invoice-approval-plane" bpmnElement="invoice-approval">
+      <bpmndi:BPMNShape id="invoiceReceived_di" bpmnElement="invoiceReceived">
+        <dc:Bounds x="152" y="102" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approveInvoice_di" bpmnElement="approveInvoice">
+        <dc:Bounds x="240" y="80" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decisionGateway_di" bpmnElement="decisionGateway" isMarkerVisible="true">
+        <dc:Bounds x="395" y="95" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="invoiceApproved_di" bpmnElement="invoiceApproved">
+        <dc:Bounds x="502" y="102" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="invoiceRejected_di" bpmnElement="invoiceRejected">
+        <dc:Bounds x="502" y="212" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="toApprove_di" bpmnElement="toApprove">
+        <di:waypoint x="188" y="120"/>
+        <di:waypoint x="240" y="120"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="toDecision_di" bpmnElement="toDecision">
+        <di:waypoint x="340" y="120"/>
+        <di:waypoint x="395" y="120"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="approvedFlow_di" bpmnElement="approvedFlow">
+        <di:waypoint x="445" y="120"/>
+        <di:waypoint x="502" y="120"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="rejectedFlow_di" bpmnElement="rejectedFlow">
+        <di:waypoint x="420" y="145"/>
+        <di:waypoint x="420" y="230"/>
+        <di:waypoint x="502" y="230"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
