@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +16,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,5 +66,14 @@ public class AuthController {
   @GetMapping("/me")
   public TasklistUser me(@AuthenticationPrincipal TasklistUser user) {
     return user;
+  }
+
+  /**
+   * The browser app reads the CSRF token from the XSRF-TOKEN cookie; native apps cannot read cookies, so they
+   * fetch the same token here and send it back in the named header.
+   */
+  @GetMapping("/csrf")
+  public Map<String, String> csrf(CsrfToken token) {
+    return Map.of("headerName", token.getHeaderName(), "token", token.getToken());
   }
 }
