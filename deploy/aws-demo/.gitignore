@@ -1,0 +1,4 @@
+.env
+.state
+engine/dist/
+tasklist/dist/

@@ -1,0 +1,91 @@
+# Samanvay demo stack for a single small EC2 instance (free tier, 1 GiB RAM + swap).
+#
+#   Internet ──443/80──▶ caddy ──▶ tasklist :8081   (/, /api, mobile app)
+#                              └─▶ engine   :8080   (/camunda: Cockpit, Admin, Tasklist webapps)
+#   tasklist ──▶ engine /engine-rest (internal only, never routed by Caddy)
+#
+# Databases are embedded H2 files, one per application, on the engine-data and tasklist-data volumes.
+# Secrets come from .env, which deploy.sh generates on the server on first deploy.
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  engine:
+    build: ./engine
+    image: samanvay/engine:demo
+    restart: unless-stopped
+    logging: *logging
+    stop_grace_period: 30s
+    environment:
+      SAMANVAY_ADMIN_USER: ${SAMANVAY_ADMIN_USER:-admin}
+      SAMANVAY_ADMIN_PASSWORD: ${SAMANVAY_ADMIN_PASSWORD:?set in .env}
+      ENGINE_DB_PASSWORD: ${ENGINE_DB_PASSWORD:?set in .env}
+      JAVA_OPTS: >-
+        -Xms128m -Xmx320m -XX:MaxMetaspaceSize=192m -XX:ReservedCodeCacheSize=64m
+        -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1
+    volumes:
+      - engine-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsu \"$$SAMANVAY_ADMIN_USER:$$SAMANVAY_ADMIN_PASSWORD\" http://localhost:8080/engine-rest/engine >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 180s
+
+  tasklist:
+    build: ./tasklist
+    image: samanvay/tasklist:demo
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SAMANVAY_TASKLIST_DB_URL: jdbc:h2:file:/data/tasklist;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+      SAMANVAY_TASKLIST_DB_USERNAME: sa
+      SAMANVAY_TASKLIST_DB_PASSWORD: ${TASKLIST_DB_PASSWORD:?set in .env}
+      SAMANVAY_ENGINE_BASE_URL: http://engine:8080/engine-rest
+      SAMANVAY_ENGINE_USERNAME: ${SAMANVAY_ADMIN_USER:-admin}
+      SAMANVAY_ENGINE_PASSWORD: ${SAMANVAY_ADMIN_PASSWORD:?set in .env}
+      # demo: also load the example "invoice-approval" form
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration,classpath:db/dev-seed
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SERVER_FORWARD_HEADERS_STRATEGY: native
+      SERVER_TOMCAT_THREADS_MAX: "50"
+      JAVA_TOOL_OPTIONS: >-
+        -Xms96m -Xmx224m -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=48m
+        -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1
+    volumes:
+      - tasklist-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8081/actuator/health >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 120s
+
+  caddy:
+    image: caddy:2.8.4
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      - tasklist
+      - engine
+    environment:
+      SAMANVAY_DOMAIN: ${SAMANVAY_DOMAIN:?set in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  engine-data:
+  tasklist-data:
+  caddy-data:
+  caddy-config:
