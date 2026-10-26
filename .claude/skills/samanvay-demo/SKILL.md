@@ -63,6 +63,19 @@ If `.state` is missing, clean up by hand: look for the resources named or tagged
 After a destroy and re-create, the server gets a **new IP and a new admin password**, and demo users and processes
 must be set up again. The example invoice process and its form are preloaded automatically.
 
+## Deploy a BPMN/DMN to the running engine
+
+```bash
+curl -u admin:<password> -F deployment-name=<name> -F deploy-changed-only=true   -F data=@<file.bpmn> https://dev-samanvay.ulesolutions.com/engine-rest/deployment/create
+```
+
+Camunda Modeler works too: REST endpoint `https://dev-samanvay.ulesolutions.com/engine-rest`, HTTP Basic auth.
+
+## Changing only the Caddyfile
+
+Copy it with `scp` to `~/samanvay/Caddyfile`, then run
+`docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile`. This has no downtime and needs no full deploy.
+
 ## Stop / start without destroying (saves the instance charge only)
 
 ```bash
@@ -80,7 +93,9 @@ for p in / /camunda/app/welcome/default/ /engine-rest/engine /actuator/health; d
   echo "$p -> $(curl -s -o /dev/null -w '%{http_code}' $B$p)"; done
 ```
 
-Expected: `200, 200, 404, 200`. A 404 on `/engine-rest` is intended: it must never be public. Also do a sign-in through
+Expected: `200, 200, 404, 200`. A 404 on `/engine-rest/engine` is intended. Only deployment endpoints are public:
+`POST /engine-rest/deployment/create`, `GET /engine-rest/deployment` and `GET /engine-rest/version`, all with Basic auth.
+The rest of `/engine-rest` must stay internal (see the `Caddyfile`). Also do a sign-in through
 `/api/auth/csrf` and then `/api/auth/login`. Read the password with
 `ssh -i ~/.ssh/samanvay-demo.pem ubuntu@<ip> grep ADMIN_PASSWORD samanvay/.env` and don't print it in chat unless asked.
 

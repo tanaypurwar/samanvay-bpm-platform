@@ -6,7 +6,9 @@ Runs the whole platform with Docker Compose on one small EC2 instance at **https
 Internet ──443──▶ Caddy (automatic Let's Encrypt TLS)
                    ├─ /          ▶ Samanvay Tasklist :8081  (web app + /api for web and mobile)
                    ├─ /camunda/  ▶ Samanvay Run      :8080  (Cockpit, Admin, Tasklist webapps)
-                   └─ /engine-rest  → 404 (internal only: the tasklist backend calls it over the Docker network)
+                   ├─ /engine-rest/deployment/create (POST), /engine-rest/deployment, /version (GET)
+                   │              ▶ Samanvay Run  (deploying from Camunda Modeler or curl; Basic auth)
+                   └─ rest of /engine-rest  → 404 (internal only: the tasklist backend calls it over the Docker network)
 Databases: embedded H2 files on Docker volumes (engine-data, tasklist-data); no database server to run
 ```
 
@@ -60,6 +62,22 @@ ssh -i ~/.ssh/samanvay-demo.pem ubuntu@<ip> grep ADMIN_PASSWORD samanvay/.env
 - Mobile app: enter `https://dev-samanvay.ulesolutions.com` as the server address.
 
 The tasklist calls the engine as `admin` too. That is fine for a demo, but use a dedicated service account in production.
+
+## Deploying processes
+
+Deployment is open over HTTPS and needs a user with deployment rights, e.g. `admin`. The rest of the engine REST API
+stays internal.
+
+- **Camunda Modeler:** *Deploy* → Camunda 7 → REST endpoint `https://dev-samanvay.ulesolutions.com/engine-rest`,
+  authentication *HTTP Basic*.
+- **curl:**
+
+  ```bash
+  curl -u admin:<password> -F deployment-name=my-process -F deploy-changed-only=true     -F data=@my-process.bpmn https://dev-samanvay.ulesolutions.com/engine-rest/deployment/create
+  ```
+
+For a user task with `camunda:formKey="samanvay:<key>"`, publish a form with that key in the tasklist under
+*Admin → Forms*.
 
 ## Operating
 

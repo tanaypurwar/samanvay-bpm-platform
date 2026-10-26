@@ -9,7 +9,23 @@
 		-Server
 	}
 
-	# the engine REST API is for the tasklist backend only, never for browsers
+	# Deploying from anywhere (Camunda Modeler, curl). The engine still requires HTTP Basic auth.
+	@engineDeploy {
+		method POST
+		path /engine-rest/deployment/create
+	}
+	handle @engineDeploy {
+		reverse_proxy engine:8080
+	}
+	@engineDeployInfo {
+		method GET
+		path /engine-rest/version /engine-rest/deployment
+	}
+	handle @engineDeployInfo {
+		reverse_proxy engine:8080
+	}
+
+	# the rest of the engine REST API is for the tasklist backend only
 	@engineRest path /engine-rest /engine-rest/*
 	handle @engineRest {
 		respond 404
