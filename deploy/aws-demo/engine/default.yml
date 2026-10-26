@@ -1,0 +1,46 @@
+# Engine configuration for the demo server: production.yml hardening, embedded H2 file database,
+# behind Caddy (TLS ends there).
+camunda.bpm:
+  admin-user:
+    id: ${SAMANVAY_ADMIN_USER:admin}
+    password: ${SAMANVAY_ADMIN_PASSWORD}
+  filter:
+    create: All tasks
+  authorization.enabled: true
+  job-execution:
+    core-pool-size: 2
+    max-pool-size: 4
+  webapp:
+    csrf:
+      enable-same-site-cookie: true
+      same-site-cookie-option: STRICT
+    header-security:
+      hsts-disabled: true # Caddy sets HSTS
+  generic-properties.properties:
+    deserialization-type-validation-enabled: true
+    deserialization-allowed-packages:
+    deserialization-allowed-classes:
+  run:
+    auth.enabled: true
+    cors.enabled: false
+    rest.disable-wadl: true
+    deployment.deploy-changed-only: true
+    example.enabled: false
+
+server:
+  port: 8080
+  forward-headers-strategy: native
+  tomcat.threads.max: 50
+  servlet.session.cookie:
+    secure: true
+    http-only: true
+
+spring.datasource:
+  url: jdbc:h2:file:/data/process-engine;TRACE_LEVEL_FILE=0;DB_CLOSE_ON_EXIT=FALSE
+  driver-class-name: org.h2.Driver
+  username: sa
+  password: ${ENGINE_DB_PASSWORD}
+  hikari.maximum-pool-size: 5
+
+spring.web.resources:
+  static-locations: NULL

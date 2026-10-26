@@ -1,0 +1,28 @@
+# TLS certificates come from Let's Encrypt automatically and are kept in the caddy-data volume.
+{$SAMANVAY_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	# the engine REST API is for the tasklist backend only, never for browsers
+	@engineRest path /engine-rest /engine-rest/*
+	handle @engineRest {
+		respond 404
+	}
+
+	# engine webapps: Cockpit, Admin, Tasklist
+	redir /camunda /camunda/app/ 302
+	handle /camunda/* {
+		reverse_proxy engine:8080
+	}
+
+	# Samanvay Tasklist: React app, /api (web and mobile)
+	handle {
+		reverse_proxy tasklist:8081
+	}
+}
