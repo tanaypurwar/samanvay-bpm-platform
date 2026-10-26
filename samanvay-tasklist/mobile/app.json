@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Samanvay Tasklist",
+    "slug": "samanvay-tasklist",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1f4e79"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.samanvay.tasklist"
+    },
+    "android": {
+      "package": "com.samanvay.tasklist",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1f4e79"
+      }
+    },
+    "plugins": [
+      "expo-secure-store",
+      "@react-native-community/datetimepicker",
+      "expo-asset"
+    ]
+  }
+}

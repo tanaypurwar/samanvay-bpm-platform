@@ -58,6 +58,7 @@ public class SecurityConfig {
         .securityContext(sc -> sc.securityContextRepository(contextRepository))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
             .requestMatchers("/actuator/health").permitAll()
             .requestMatchers("/api/admin/**").hasAuthority(TasklistUser.ADMIN_AUTHORITY)
             .requestMatchers("/api/**", "/actuator/**").authenticated()
