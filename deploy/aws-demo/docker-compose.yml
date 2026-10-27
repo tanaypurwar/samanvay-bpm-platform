@@ -6,6 +6,9 @@
 #
 # Databases are embedded H2 files, one per application, on the engine-data and tasklist-data volumes.
 # Secrets come from .env, which deploy.sh generates on the server on first deploy.
+#
+# Process applications (e.g. eternal-hr) run as their own Compose projects on the "samanvay" network and add their
+# public routes as Caddy snippets in ./apps, so they deploy without touching this stack.
 
 x-logging: &logging
   driver: json-file
@@ -54,6 +57,19 @@ services:
       SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
       SERVER_FORWARD_HEADERS_STRATEGY: native
       SERVER_TOMCAT_THREADS_MAX: "50"
+      # per-deployment branding, defaults to Samanvay
+      SAMANVAY_TASKLIST_BRANDING_NAME: ${TASKLIST_BRAND_NAME:-Samanvay}
+      SAMANVAY_TASKLIST_BRANDING_PRODUCT: ${TASKLIST_BRAND_PRODUCT:-Tasklist}
+      SAMANVAY_TASKLIST_BRANDING_PRIMARY_COLOR: ${TASKLIST_BRAND_PRIMARY_COLOR:-#1f4e79}
+      SAMANVAY_TASKLIST_BRANDING_SECONDARY_COLOR: ${TASKLIST_BRAND_SECONDARY_COLOR:-#00796b}
+      # process documents in S3; off while DOCUMENTS_BUCKET is empty. On AWS the instance role grants access;
+      # locally deploy/local points this at an S3-compatible container with its own keys.
+      SAMANVAY_DOCUMENTS_BUCKET: ${DOCUMENTS_BUCKET:-}
+      SAMANVAY_DOCUMENTS_REGION: ${DOCUMENTS_REGION:-ap-south-1}
+      SAMANVAY_DOCUMENTS_ENDPOINT: ${DOCUMENTS_ENDPOINT:-}
+      SAMANVAY_DOCUMENTS_ACCESS_KEY: ${DOCUMENTS_ACCESS_KEY:-}
+      SAMANVAY_DOCUMENTS_SECRET_KEY: ${DOCUMENTS_SECRET_KEY:-}
+      SAMANVAY_DOCUMENTS_CREATE_BUCKET: ${DOCUMENTS_CREATE_BUCKET:-false}
       JAVA_TOOL_OPTIONS: >-
         -Xms96m -Xmx224m -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=48m
         -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1
@@ -81,8 +97,13 @@ services:
       - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./apps:/etc/caddy/apps:ro
       - caddy-data:/data
       - caddy-config:/config
+
+networks:
+  default:
+    name: samanvay
 
 volumes:
   engine-data:

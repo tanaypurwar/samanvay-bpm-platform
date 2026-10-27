@@ -22,7 +22,7 @@ done
 "${ssh_cmd[@]}" 'cloud-init status --wait >/dev/null; command -v docker >/dev/null'
 
 echo "==> Uploading"
-tar -C "$HERE" -czf - --exclude=./.env --exclude=./.state --exclude=./scripts . \
+tar -C "$HERE" -czf - --exclude=./.env --exclude=./.state --exclude=./scripts --exclude=./apps/*.caddy . \
   | "${ssh_cmd[@]}" 'mkdir -p ~/samanvay && tar xzf - -C ~/samanvay'
 
 echo "==> Starting"

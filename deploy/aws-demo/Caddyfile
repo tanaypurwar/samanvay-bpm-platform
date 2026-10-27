@@ -31,6 +31,9 @@
 		respond 404
 	}
 
+	# routes of process applications deployed next to the platform (see apps/)
+	import /etc/caddy/apps/*.caddy
+
 	# engine webapps: Cockpit, Admin, Tasklist
 	redir /camunda /camunda/app/ 302
 	handle /camunda/* {
