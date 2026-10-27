@@ -1,0 +1,84 @@
+{
+  "name": "Prepare appointment letter",
+  "schema": {
+    "title": "Prepare appointment letter",
+    "description": "Prepare the letter. It is emailed to the project manager for approval.",
+    "type": "object",
+    "required": [
+      "designation",
+      "proposedAnnualCtc",
+      "proposedJoiningDate",
+      "workLocation",
+      "letterReference"
+    ],
+    "properties": {
+      "employeeCode": {
+        "type": "string",
+        "title": "Employee code (HRMS)",
+        "readOnly": true
+      },
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "minLength": 2,
+        "maxLength": 100
+      },
+      "proposedAnnualCtc": {
+        "type": "number",
+        "title": "Annual CTC (INR)",
+        "minimum": 0
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Date of joining"
+      },
+      "workLocation": {
+        "type": "string",
+        "title": "Work location",
+        "maxLength": 100
+      },
+      "letterReference": {
+        "type": "string",
+        "title": "Appointment letter",
+        "minLength": 3,
+        "maxLength": 500,
+        "description": "Link to the letter in the document system, or its reference number."
+      },
+      "letterNotes": {
+        "type": "string",
+        "title": "Notes for the project manager",
+        "maxLength": 1000
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:order": [
+      "employeeCode",
+      "candidateName",
+      "designation",
+      "proposedAnnualCtc",
+      "proposedJoiningDate",
+      "workLocation",
+      "letterReference",
+      "letterNotes"
+    ],
+    "letterReference": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    },
+    "letterNotes": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

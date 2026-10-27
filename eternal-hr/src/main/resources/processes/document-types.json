@@ -1,0 +1,15 @@
+{
+  "types": [
+    { "id": "aadhaar", "label": "Aadhaar card", "employee": true },
+    { "id": "pan", "label": "PAN card", "employee": true },
+    { "id": "photo", "label": "Passport-size photograph", "employee": true },
+    { "id": "education", "label": "Education certificate", "employee": true },
+    { "id": "cv", "label": "CV / resume", "employee": true },
+    { "id": "bank-proof", "label": "Bank account proof (cancelled cheque or passbook)", "employee": true },
+    { "id": "previous-employment", "label": "Previous employment certificate", "employee": true },
+    { "id": "pif-kit", "label": "PIF kit", "employee": true },
+    { "id": "joining-approval", "label": "Joining approval / supporting document" },
+    { "id": "appointment-letter", "label": "Appointment letter" },
+    { "id": "other", "label": "Other document", "employee": true }
+  ]
+}

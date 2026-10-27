@@ -1,0 +1,13 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{mail/layout :: layout('Joining complete', ~{::div.content})}">
+<div class="content">
+  <p><strong th:text="${candidateName}">Asha Rao</strong> has completed joining<span th:if="${designation}"> as
+    <span th:text="${designation}">Designer</span></span><span th:if="${projectName}"> on
+    <span th:text="${projectName}">Project</span></span>.</p>
+  <ul style="padding-left:18px;">
+    <li>Employee code: <strong th:text="${employeeCode}">EHR-1</strong></li>
+    <li>Induction done and appointment letter sent</li>
+    <li>Documents reviewed and the HRMS record verified</li>
+  </ul>
+</div>
+</html>

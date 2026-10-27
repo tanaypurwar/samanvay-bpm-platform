@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:fragment="head(title)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title th:text="${title} + ' · Eternal HR'">Eternal HR</title>
+  <style>
+    :root {
+      --brand: #4527a0; --brand-dark: #311b92; --accent: #00897b;
+      --text: #1d1b26; --muted: #5f5b6e; --line: #dcd8e6; --bg: #f6f5fa; --card: #ffffff; --error: #c62828;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --brand: #9f8be0; --brand-dark: #b9a9f0; --accent: #4db6ac;
+              --text: #ece9f5; --muted: #aaa5bd; --line: #3a3550; --bg: #15131d; --card: #1f1c2b; --error: #ef9a9a; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.5 "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: var(--text); background: var(--bg); }
+    header { background: var(--brand); color: #fff; padding: 14px 16px; }
+    @media (prefers-color-scheme: dark) { header { background: #2a1f52; } }
+    header .brand { max-width: 760px; margin: 0 auto; font-weight: 700; font-size: 1.15rem; letter-spacing: .01em; }
+    header .brand span { font-weight: 400; opacity: .85; }
+    main { max-width: 760px; margin: 0 auto; padding: 20px 16px 48px; }
+    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    .lead { color: var(--muted); margin: 0 0 20px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .card h2 { font-size: 1.05rem; margin: 0 0 14px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+    .grid .wide { grid-column: 1 / -1; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    label { display: block; font-weight: 600; font-size: .92rem; margin-bottom: 4px; }
+    .hint { font-weight: 400; color: var(--muted); }
+    input, select, textarea { width: 100%; font: inherit; color: var(--text); background: var(--card);
+      border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+    textarea { min-height: 76px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--brand); outline-offset: 1px; border-color: transparent; }
+    .invalid input, .invalid select, .invalid textarea { border-color: var(--error); }
+    .err { color: var(--error); font-size: .85rem; margin-top: 4px; }
+    .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; }
+    .check input { width: auto; margin-top: 4px; }
+    .alert { border: 1px solid var(--error); color: var(--error); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; }
+    button { font: inherit; font-weight: 600; color: #fff; background: var(--brand); border: 0; border-radius: 8px;
+      padding: 12px 22px; cursor: pointer; }
+    button:hover { background: var(--brand-dark); }
+    @media (max-width: 600px) { button { width: 100%; } }
+    .actions { display: flex; justify-content: flex-end; }
+    button.secondary { color: var(--brand); background: transparent; border: 1px solid var(--line); padding: 8px 14px; margin-top: 12px; }
+    button.secondary:hover { background: var(--bg); }
+    .doc-row { display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px; margin-top: 10px; }
+    .doc-row input[type=file] { padding: 7px 10px; }
+    @media (max-width: 600px) { .doc-row { grid-template-columns: 1fr; padding-bottom: 10px; border-bottom: 1px solid var(--line); } }
+    .center { text-align: center; padding: 40px 20px; }
+    .badge { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
+      background: var(--accent); color: #fff; font-size: 28px; margin-bottom: 12px; }
+    .badge.neutral { background: var(--muted); }
+  </style>
+</head>
+<body>
+<header th:fragment="header"><div class="brand">Eternal HR <span>Onboarding</span></div></header>
+</body>
+</html>

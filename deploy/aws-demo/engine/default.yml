@@ -17,6 +17,8 @@ camunda.bpm:
     header-security:
       hsts-disabled: true # Caddy sets HSTS
   generic-properties.properties:
+    # user and group ids like "hr-team", "tm.demo" or an email address (default: letters and digits only)
+    general-resource-whitelist-pattern: "[a-zA-Z0-9][a-zA-Z0-9._@-]*"
     deserialization-type-validation-enabled: true
     deserialization-allowed-packages:
     deserialization-allowed-classes:

@@ -1,0 +1,18 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{mail/layout :: layout(${revised ? 'Revised appointment letter for approval' : 'Appointment letter for approval'}, ~{::div.content})}">
+<div class="content">
+  <p>Please review the appointment letter for <strong th:text="${candidateName}">Asha Rao</strong>.</p>
+  <div th:if="${revised and letterChanges != null}">
+    <p style="margin-bottom:4px;"><strong>Changes you asked for</strong></p>
+    <p style="white-space:pre-line;background:#f6f5fa;border-radius:8px;padding:12px;margin-top:0;" th:text="${letterChanges}">DOJ</p>
+  </div>
+  <table th:replace="~{mail/letter-details :: details}"></table>
+  <div th:if="${letterNotes}">
+    <p style="margin-bottom:4px;"><strong>Notes from HR</strong></p>
+    <p style="white-space:pre-line;margin-top:0;" th:text="${letterNotes}">Notes</p>
+  </div>
+  <p style="margin:24px 0;" th:if="${tasklistUrl}">
+    <a th:href="${tasklistUrl}" style="background:#4527a0;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:8px;display:inline-block;">Approve or request changes</a>
+  </p>
+</div>
+</html>

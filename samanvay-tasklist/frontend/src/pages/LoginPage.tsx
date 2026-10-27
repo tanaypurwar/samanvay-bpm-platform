@@ -3,9 +3,11 @@ import { useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { errorMessage } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { useBranding } from '../theme/BrandingContext';
 
 export function LoginPage() {
   const { user, login, sessionExpired } = useAuth();
+  const branding = useBranding();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? '/';
@@ -40,7 +42,7 @@ export function LoginPage() {
         <Stack spacing={2.5}>
           <Box>
             <Typography variant="h1" component="h1">
-              Samanvay Tasklist
+              {branding.name} {branding.product}
             </Typography>
             <Typography color="text.secondary">Sign in to see your tasks</Typography>
           </Box>

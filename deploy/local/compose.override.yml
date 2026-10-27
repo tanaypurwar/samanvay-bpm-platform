@@ -1,0 +1,32 @@
+# Local run of the platform stack (deploy/aws-demo/docker-compose.yml) on this machine:
+#   https://localhost:18443 with a certificate from Caddy's own local CA (accept the browser warning once)
+#   engine REST API on 127.0.0.1:8080, for running process applications from the IDE
+#   s3: RustFS, an S3-compatible stand-in for the AWS bucket that holds process documents;
+#       S3 API on 127.0.0.1:19000, web console on http://127.0.0.1:19001/rustfs/console/ (keys in deploy/local/.env)
+services:
+  caddy:
+    ports: !override
+      - "18443:443"
+  engine:
+    ports:
+      - "127.0.0.1:8080:8080"
+  tasklist:
+    depends_on:
+      - s3
+  s3:
+    image: rustfs/rustfs:1.0.1
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: ${DOCUMENTS_ACCESS_KEY:?set in .env}
+      RUSTFS_SECRET_KEY: ${DOCUMENTS_SECRET_KEY:?set in .env}
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+    ports:
+      - "127.0.0.1:19000:9000"
+      - "127.0.0.1:19001:9001"
+    volumes:
+      - s3-data:/data
+
+volumes:
+  s3-data:

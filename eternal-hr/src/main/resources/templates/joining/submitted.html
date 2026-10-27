@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{joining/layout :: head('Thank you')}"></head>
+<body>
+<header th:replace="~{joining/layout :: header}"></header>
+<main>
+  <div class="card center">
+    <div class="badge" aria-hidden="true">&#10003;</div>
+    <h1>Thank you, <span th:text="${candidateName}">Asha</span></h1>
+    <p class="lead">Your joining form is with HR<span th:if="${documentCount > 0}">, together with
+      <span th:text="${documentCount == 1 ? '1 document' : documentCount + ' documents'}">3 documents</span></span>.
+      You will get your appointment letter by email before your joining date, and HR will contact you about any other
+      documents they need.</p>
+  </div>
+</main>
+</body>
+</html>

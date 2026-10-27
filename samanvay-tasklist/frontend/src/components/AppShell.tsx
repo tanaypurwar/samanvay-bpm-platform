@@ -1,6 +1,7 @@
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import DynamicFormOutlinedIcon from '@mui/icons-material/DynamicFormOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import {
   AppBar,
   Avatar,
@@ -16,13 +17,20 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useMatch, useNavigate } from 'react-router-dom';
+import { fetchStartableProcesses } from '../api/processes';
 import { useAuth } from '../auth/AuthContext';
+import { useBranding } from '../theme/BrandingContext';
 
 export function AppShell() {
   const { user, logout } = useAuth();
+  const branding = useBranding();
+  // the Start menu only appears for users who can start something
+  const startable = useQuery({ queryKey: ['processes'], queryFn: fetchStartableProcesses, staleTime: 5 * 60_000 });
   const navigate = useNavigate();
+  const formPage = Boolean(useMatch('/tasks/:id')) || Boolean(useMatch('/start/:key'));
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const initials = (user?.firstName?.[0] ?? user?.id[0] ?? '?').toUpperCase() + (user?.lastName?.[0] ?? '').toUpperCase();
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.id;
@@ -50,10 +58,15 @@ export function AppShell() {
             to="/"
             sx={{ color: 'inherit', textDecoration: 'none', fontWeight: 700, mr: { xs: 'auto', sm: 3 } }}
           >
-            Samanvay<Box component="span" sx={{ fontWeight: 400, display: { xs: 'none', sm: 'inline' } }}> Tasklist</Box>
+            {branding.name}
+            <Box component="span" sx={{ fontWeight: 400, display: { xs: 'none', sm: 'inline' } }}>
+              {' '}
+              {branding.product}
+            </Box>
           </Typography>
           <Box sx={{ display: 'flex', gap: 0.5, flexGrow: { sm: 1 } }}>
             {navButton('/', 'Tasks', <AssignmentOutlinedIcon />)}
+            {(startable.data?.length ?? 0) > 0 && navButton('/start', 'Start', <PlayCircleOutlineIcon />)}
             {user?.admin && navButton('/admin/forms', 'Forms', <DynamicFormOutlinedIcon />)}
           </Box>
           <Tooltip title={fullName ?? ''}>
@@ -86,7 +99,8 @@ export function AppShell() {
           </Menu>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 } }}>
+      {/* form pages get the full width so a document preview fits beside the form */}
+      <Container maxWidth={formPage ? false : 'lg'} sx={{ py: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 } }}>
         <Outlet />
       </Container>
     </Box>

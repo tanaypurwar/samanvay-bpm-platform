@@ -1,5 +1,6 @@
 package com.samanvay.tasklist.common;
 
+import com.samanvay.tasklist.document.DocumentStoreUnavailableException;
 import com.samanvay.tasklist.engine.EngineException;
 import com.samanvay.tasklist.engine.EngineUnavailableException;
 import java.util.List;
@@ -10,8 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 /** Turns failures into safe {@link ApiError} bodies; technical detail goes to the log only. */
 @RestControllerAdvice
@@ -54,7 +59,20 @@ public class GlobalExceptionHandler {
         "The workflow engine is currently unavailable. Please try again shortly.", List.of());
   }
 
-  @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
+  @ExceptionHandler(DocumentStoreUnavailableException.class)
+  ResponseEntity<ApiError> handleDocumentStore(DocumentStoreUnavailableException e) {
+    return body(HttpStatus.SERVICE_UNAVAILABLE, "DOCUMENT_STORE_UNAVAILABLE",
+        "Documents are currently unavailable. Please try again shortly.", List.of());
+  }
+
+  @ExceptionHandler(MaxUploadSizeExceededException.class)
+  ResponseEntity<ApiError> handleTooLarge(MaxUploadSizeExceededException e) {
+    return body(HttpStatus.PAYLOAD_TOO_LARGE, "FILE_TOO_LARGE", "The file is too large.", List.of());
+  }
+
+  @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class,
+      MissingServletRequestPartException.class, MissingServletRequestParameterException.class,
+      MultipartException.class})
   ResponseEntity<ApiError> handleBadRequest(Exception e) {
     return body(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "The request is invalid.", List.of());
   }

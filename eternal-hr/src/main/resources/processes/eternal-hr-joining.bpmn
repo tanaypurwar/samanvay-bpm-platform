@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_EternalHrJoining" targetNamespace="http://eternalhr.com/bpmn" exporter="Eternal HR" exporterVersion="1.0">
+  <bpmn:collaboration id="Collaboration_EternalHr">
+    <bpmn:participant id="Participant_Joining" name="Eternal HR: Joining &amp; documentation" processRef="eternal-hr-joining" />
+  </bpmn:collaboration>
+  <bpmn:message id="Message_JoiningFormSubmitted" name="JoiningFormSubmitted" />
+  <bpmn:process id="eternal-hr-joining" name="Employee joining &amp; documentation" isExecutable="true" camunda:candidateStarterGroups="territory-managers" camunda:historyTimeToLive="P180D" camunda:versionTag="1.0">
+    <bpmn:documentation>Raise a new joining request: approval by reporting manager, country head and project manager, then joining form, HRMS record, induction, appointment letter and document verification.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_Roles">
+      <bpmn:lane id="Lane_TM" name="Territory Manager">
+        <bpmn:flowNodeRef>StartEvent_JoiningRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SendBack</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_TmRevise</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_RM" name="Reporting Manager">
+        <bpmn:flowNodeRef>Task_RmReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_RmDecision</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_CH" name="Country Head">
+        <bpmn:flowNodeRef>Task_ChApproval</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ChDecision</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_PM" name="Project Manager">
+        <bpmn:flowNodeRef>Task_PmApproval</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_PmDecision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LetterReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_LetterDecision</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_HR" name="HR Team">
+        <bpmn:flowNodeRef>Task_HrStart</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Split</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Induction</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LetterPrepare</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LetterRevise</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DocsCollect</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DocsReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_DocsOk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DocsFollowUp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Timer_Escalate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DataVerify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Join</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_SYS" name="Eternal HR system">
+        <bpmn:flowNodeRef>Gateway_Rejected</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotifyRejected</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Rejected</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendFormLink</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_WaitJoiningForm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Timer_FormReminder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendFormReminder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_ReminderSent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_HrmsCreate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LetterToPm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LetterToEmployee</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RequestCorrection</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EscalatePm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Escalated</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_HrmsVerify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotifyCompleted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Onboarded</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_JoiningRequest" name="Joining request raised" camunda:formKey="samanvay:deployment:forms/joining-request.form.json">
+      <bpmn:outgoing>Flow_Start</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_RmReview" name="Review joining: ${candidateName}" camunda:formKey="samanvay:deployment:forms/rm-review.form.json" camunda:candidateGroups="reporting-managers" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:extensionElements><camunda:taskListener event="complete" expression="${execution.setVariable('reportingManager', task.assignee)}" /></bpmn:extensionElements>
+      <bpmn:incoming>Flow_Start</bpmn:incoming>
+      <bpmn:incoming>Flow_Resubmit</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToRmDecision</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_RmDecision" name="Reporting manager decision" default="Flow_RmForward">
+      <bpmn:incoming>Flow_ToRmDecision</bpmn:incoming>
+      <bpmn:outgoing>Flow_RmForward</bpmn:outgoing>
+      <bpmn:outgoing>Flow_RmSendBack</bpmn:outgoing>
+      <bpmn:outgoing>Flow_RmReject</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_ChApproval" name="Approve joining (Country Head): ${candidateName}" camunda:formKey="samanvay:deployment:forms/ch-approval.form.json" camunda:candidateGroups="country-heads" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:extensionElements><camunda:taskListener event="complete" expression="${execution.setVariable('countryHead', task.assignee)}" /></bpmn:extensionElements>
+      <bpmn:incoming>Flow_RmForward</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToChDecision</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_ChDecision" name="Country head decision" default="Flow_ChApprove">
+      <bpmn:incoming>Flow_ToChDecision</bpmn:incoming>
+      <bpmn:outgoing>Flow_ChApprove</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ChSendBack</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ChReject</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_PmApproval" name="Approve joining (PM): ${candidateName}" camunda:formKey="samanvay:deployment:forms/pm-approval.form.json" camunda:candidateGroups="project-managers" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:extensionElements><camunda:taskListener event="complete" expression="${execution.setVariable('projectManager', task.assignee)}" /></bpmn:extensionElements>
+      <bpmn:incoming>Flow_ChApprove</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToPmDecision</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_PmDecision" name="Project manager decision" default="Flow_PmApprove">
+      <bpmn:incoming>Flow_ToPmDecision</bpmn:incoming>
+      <bpmn:outgoing>Flow_PmApprove</bpmn:outgoing>
+      <bpmn:outgoing>Flow_PmSendBack</bpmn:outgoing>
+      <bpmn:outgoing>Flow_PmReject</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_SendBack" name="Sent back">
+      <bpmn:incoming>Flow_RmSendBack</bpmn:incoming>
+      <bpmn:incoming>Flow_ChSendBack</bpmn:incoming>
+      <bpmn:incoming>Flow_PmSendBack</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToRevise</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_TmRevise" name="Update joining request: ${candidateName}" camunda:formKey="samanvay:deployment:forms/tm-revise.form.json" camunda:assignee="${initiator}">
+      <bpmn:extensionElements><camunda:taskListener event="complete" expression="${execution.removeVariable('rmDecision')}" /><camunda:taskListener event="complete" expression="${execution.removeVariable('chDecision')}" /><camunda:taskListener event="complete" expression="${execution.removeVariable('pmDecision')}" /></bpmn:extensionElements>
+      <bpmn:incoming>Flow_ToRevise</bpmn:incoming>
+      <bpmn:outgoing>Flow_Resubmit</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_Rejected" name="Rejected">
+      <bpmn:incoming>Flow_RmReject</bpmn:incoming>
+      <bpmn:incoming>Flow_ChReject</bpmn:incoming>
+      <bpmn:incoming>Flow_PmReject</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToNotifyRejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_NotifyRejected" name="Notify initiator of rejection" camunda:type="external" camunda:topic="ehr.notify.joining-rejected">
+      <bpmn:incoming>Flow_ToNotifyRejected</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToEndRejected</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_Rejected" name="Joining rejected">
+      <bpmn:incoming>Flow_ToEndRejected</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_HrStart" name="Start joining formalities: ${candidateName}" camunda:formKey="samanvay:deployment:forms/hr-start.form.json" camunda:candidateGroups="hr-team">
+      <bpmn:incoming>Flow_PmApprove</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToSendLink</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_SendFormLink" name="Email joining form link" camunda:type="external" camunda:topic="ehr.joining-form.send-link">
+      <bpmn:incoming>Flow_ToSendLink</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToWaitForm</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:receiveTask id="Task_WaitJoiningForm" name="Wait for employee joining form" messageRef="Message_JoiningFormSubmitted">
+      <bpmn:incoming>Flow_ToWaitForm</bpmn:incoming>
+      <bpmn:outgoing>Flow_FormSubmitted</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:boundaryEvent id="Timer_FormReminder" name="Reminder due" cancelActivity="false" attachedToRef="Task_WaitJoiningForm">
+      <bpmn:outgoing>Flow_ToReminder</bpmn:outgoing>
+      <bpmn:timerEventDefinition><bpmn:timeCycle xsi:type="bpmn:tFormalExpression">${joiningFormReminderCycle}</bpmn:timeCycle></bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_SendFormReminder" name="Email joining form reminder" camunda:type="external" camunda:topic="ehr.joining-form.send-reminder">
+      <bpmn:incoming>Flow_ToReminder</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToReminderEnd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_ReminderSent" name="Reminder sent">
+      <bpmn:incoming>Flow_ToReminderEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_HrmsCreate" name="Create employee record in HRMS" camunda:type="external" camunda:topic="ehr.hrms.create-employee">
+      <bpmn:incoming>Flow_FormSubmitted</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToSplit</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_Split">
+      <bpmn:incoming>Flow_ToSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToInduction</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ToLetterPrepare</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:userTask id="Task_Induction" name="Conduct induction: ${candidateName}" camunda:formKey="samanvay:deployment:forms/induction.form.json" camunda:candidateGroups="hr-team">
+      <bpmn:incoming>Flow_ToInduction</bpmn:incoming>
+      <bpmn:outgoing>Flow_InductionDone</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_LetterPrepare" name="Prepare appointment letter: ${candidateName}" camunda:formKey="samanvay:deployment:forms/letter-prepare.form.json" camunda:candidateGroups="hr-team">
+      <bpmn:incoming>Flow_ToLetterPrepare</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToLetterToPm</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_LetterToPm" name="Email letter to PM for approval" camunda:type="external" camunda:topic="ehr.letter.send-for-approval">
+      <bpmn:incoming>Flow_ToLetterToPm</bpmn:incoming>
+      <bpmn:incoming>Flow_LetterResend</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToLetterReview</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_LetterReview" name="Review appointment letter: ${candidateName}" camunda:formKey="samanvay:deployment:forms/letter-review.form.json" camunda:assignee="${projectManager}" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:incoming>Flow_ToLetterReview</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToLetterDecision</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_LetterDecision" name="Letter approved?" default="Flow_LetterApproved">
+      <bpmn:incoming>Flow_ToLetterDecision</bpmn:incoming>
+      <bpmn:outgoing>Flow_LetterApproved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_LetterChanges</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_LetterRevise" name="Revise appointment letter: ${candidateName}" camunda:formKey="samanvay:deployment:forms/letter-revise.form.json" camunda:candidateGroups="hr-team">
+      <bpmn:extensionElements><camunda:taskListener event="complete" expression="${execution.removeVariable('letterDecision')}" /></bpmn:extensionElements>
+      <bpmn:incoming>Flow_LetterChanges</bpmn:incoming>
+      <bpmn:outgoing>Flow_LetterResend</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_LetterToEmployee" name="Email appointment letter to employee" camunda:type="external" camunda:topic="ehr.letter.send-to-employee">
+      <bpmn:incoming>Flow_LetterApproved</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToDocsCollect</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_DocsCollect" name="Collect employee documents: ${candidateName}" camunda:formKey="samanvay:deployment:forms/documents-collect.form.json" camunda:candidateGroups="hr-team">
+      <bpmn:incoming>Flow_ToDocsCollect</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToDocsReview</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_DocsReview" name="Review documents: ${candidateName}" camunda:formKey="samanvay:deployment:forms/documents-review.form.json" camunda:candidateGroups="hr-team">
+      <bpmn:incoming>Flow_ToDocsReview</bpmn:incoming>
+      <bpmn:incoming>Flow_ReReview</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToDocsOk</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_DocsOk" name="Documents in order?" default="Flow_DocsIssues">
+      <bpmn:incoming>Flow_ToDocsOk</bpmn:incoming>
+      <bpmn:outgoing>Flow_DocsOk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_DocsIssues</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_RequestCorrection" name="Email employee about document issues" camunda:type="external" camunda:topic="ehr.documents.request-correction">
+      <bpmn:incoming>Flow_DocsIssues</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToFollowUp</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_DocsFollowUp" name="Follow up on documents: ${candidateName}" camunda:formKey="samanvay:deployment:forms/documents-follow-up.form.json" camunda:candidateGroups="hr-team">
+      <bpmn:extensionElements><camunda:taskListener event="complete" expression="${execution.removeVariable('documentsClear')}" /><camunda:taskListener event="complete" expression="${execution.removeVariable('documentsMatchData')}" /></bpmn:extensionElements>
+      <bpmn:incoming>Flow_ToFollowUp</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReReview</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:boundaryEvent id="Timer_Escalate" name="No response" cancelActivity="false" attachedToRef="Task_DocsFollowUp">
+      <bpmn:outgoing>Flow_ToEscalate</bpmn:outgoing>
+      <bpmn:timerEventDefinition><bpmn:timeDuration xsi:type="bpmn:tFormalExpression">${documentEscalationAfter}</bpmn:timeDuration></bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_EscalatePm" name="Escalate missing documents to PM" camunda:type="external" camunda:topic="ehr.documents.escalate">
+      <bpmn:incoming>Flow_ToEscalate</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToEscalatedEnd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_Escalated" name="Escalated">
+      <bpmn:incoming>Flow_ToEscalatedEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_DataVerify" name="Correct and verify employee data: ${candidateName}" camunda:formKey="samanvay:deployment:forms/data-verification.form.json" camunda:candidateGroups="hr-team">
+      <bpmn:incoming>Flow_DocsOk</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToHrmsVerify</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_HrmsVerify" name="Mark employee verified in HRMS" camunda:type="external" camunda:topic="ehr.hrms.mark-verified">
+      <bpmn:incoming>Flow_ToHrmsVerify</bpmn:incoming>
+      <bpmn:outgoing>Flow_DocumentsDone</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_Join">
+      <bpmn:incoming>Flow_InductionDone</bpmn:incoming>
+      <bpmn:incoming>Flow_DocumentsDone</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToNotifyCompleted</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:serviceTask id="Task_NotifyCompleted" name="Notify joining completed" camunda:type="external" camunda:topic="ehr.notify.joining-completed">
+      <bpmn:incoming>Flow_ToNotifyCompleted</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToEndOnboarded</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_Onboarded" name="Employee onboarded">
+      <bpmn:incoming>Flow_ToEndOnboarded</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Start" sourceRef="StartEvent_JoiningRequest" targetRef="Task_RmReview" />
+    <bpmn:sequenceFlow id="Flow_ToRmDecision" sourceRef="Task_RmReview" targetRef="Gateway_RmDecision" />
+    <bpmn:sequenceFlow id="Flow_RmForward" name="Forward" sourceRef="Gateway_RmDecision" targetRef="Task_ChApproval" />
+    <bpmn:sequenceFlow id="Flow_RmSendBack" name="Send back" sourceRef="Gateway_RmDecision" targetRef="Gateway_SendBack">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rmDecision == 'sendBack'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_RmReject" name="Reject" sourceRef="Gateway_RmDecision" targetRef="Gateway_Rejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rmDecision == 'reject'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_ToChDecision" sourceRef="Task_ChApproval" targetRef="Gateway_ChDecision" />
+    <bpmn:sequenceFlow id="Flow_ChApprove" name="Approve" sourceRef="Gateway_ChDecision" targetRef="Task_PmApproval" />
+    <bpmn:sequenceFlow id="Flow_ChSendBack" name="Send back" sourceRef="Gateway_ChDecision" targetRef="Gateway_SendBack">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${chDecision == 'sendBack'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_ChReject" name="Reject" sourceRef="Gateway_ChDecision" targetRef="Gateway_Rejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${chDecision == 'reject'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_ToPmDecision" sourceRef="Task_PmApproval" targetRef="Gateway_PmDecision" />
+    <bpmn:sequenceFlow id="Flow_PmApprove" name="Approve" sourceRef="Gateway_PmDecision" targetRef="Task_HrStart" />
+    <bpmn:sequenceFlow id="Flow_PmSendBack" name="Send back" sourceRef="Gateway_PmDecision" targetRef="Gateway_SendBack">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${pmDecision == 'sendBack'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_PmReject" name="Reject" sourceRef="Gateway_PmDecision" targetRef="Gateway_Rejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${pmDecision == 'reject'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_ToRevise" sourceRef="Gateway_SendBack" targetRef="Task_TmRevise" />
+    <bpmn:sequenceFlow id="Flow_Resubmit" name="Resubmit" sourceRef="Task_TmRevise" targetRef="Task_RmReview" />
+    <bpmn:sequenceFlow id="Flow_ToNotifyRejected" sourceRef="Gateway_Rejected" targetRef="Task_NotifyRejected" />
+    <bpmn:sequenceFlow id="Flow_ToEndRejected" sourceRef="Task_NotifyRejected" targetRef="EndEvent_Rejected" />
+    <bpmn:sequenceFlow id="Flow_ToSendLink" sourceRef="Task_HrStart" targetRef="Task_SendFormLink" />
+    <bpmn:sequenceFlow id="Flow_ToWaitForm" sourceRef="Task_SendFormLink" targetRef="Task_WaitJoiningForm" />
+    <bpmn:sequenceFlow id="Flow_ToReminder" sourceRef="Timer_FormReminder" targetRef="Task_SendFormReminder" />
+    <bpmn:sequenceFlow id="Flow_ToReminderEnd" sourceRef="Task_SendFormReminder" targetRef="EndEvent_ReminderSent" />
+    <bpmn:sequenceFlow id="Flow_FormSubmitted" name="Form submitted" sourceRef="Task_WaitJoiningForm" targetRef="Task_HrmsCreate" />
+    <bpmn:sequenceFlow id="Flow_ToSplit" sourceRef="Task_HrmsCreate" targetRef="Gateway_Split" />
+    <bpmn:sequenceFlow id="Flow_ToInduction" sourceRef="Gateway_Split" targetRef="Task_Induction" />
+    <bpmn:sequenceFlow id="Flow_ToLetterPrepare" sourceRef="Gateway_Split" targetRef="Task_LetterPrepare" />
+    <bpmn:sequenceFlow id="Flow_InductionDone" sourceRef="Task_Induction" targetRef="Gateway_Join" />
+    <bpmn:sequenceFlow id="Flow_ToLetterToPm" sourceRef="Task_LetterPrepare" targetRef="Task_LetterToPm" />
+    <bpmn:sequenceFlow id="Flow_ToLetterReview" sourceRef="Task_LetterToPm" targetRef="Task_LetterReview" />
+    <bpmn:sequenceFlow id="Flow_ToLetterDecision" sourceRef="Task_LetterReview" targetRef="Gateway_LetterDecision" />
+    <bpmn:sequenceFlow id="Flow_LetterApproved" name="Approved" sourceRef="Gateway_LetterDecision" targetRef="Task_LetterToEmployee" />
+    <bpmn:sequenceFlow id="Flow_LetterChanges" name="Changes needed" sourceRef="Gateway_LetterDecision" targetRef="Task_LetterRevise">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${letterDecision == 'changes'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_LetterResend" sourceRef="Task_LetterRevise" targetRef="Task_LetterToPm" />
+    <bpmn:sequenceFlow id="Flow_ToDocsCollect" sourceRef="Task_LetterToEmployee" targetRef="Task_DocsCollect" />
+    <bpmn:sequenceFlow id="Flow_ToDocsReview" sourceRef="Task_DocsCollect" targetRef="Task_DocsReview" />
+    <bpmn:sequenceFlow id="Flow_ToDocsOk" sourceRef="Task_DocsReview" targetRef="Gateway_DocsOk" />
+    <bpmn:sequenceFlow id="Flow_DocsOk" name="In order" sourceRef="Gateway_DocsOk" targetRef="Task_DataVerify">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${documentsClear &amp;&amp; documentsMatchData}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_DocsIssues" name="Issues found" sourceRef="Gateway_DocsOk" targetRef="Task_RequestCorrection" />
+    <bpmn:sequenceFlow id="Flow_ToFollowUp" sourceRef="Task_RequestCorrection" targetRef="Task_DocsFollowUp" />
+    <bpmn:sequenceFlow id="Flow_ReReview" name="Documents received" sourceRef="Task_DocsFollowUp" targetRef="Task_DocsReview" />
+    <bpmn:sequenceFlow id="Flow_ToEscalate" sourceRef="Timer_Escalate" targetRef="Task_EscalatePm" />
+    <bpmn:sequenceFlow id="Flow_ToEscalatedEnd" sourceRef="Task_EscalatePm" targetRef="EndEvent_Escalated" />
+    <bpmn:sequenceFlow id="Flow_ToHrmsVerify" sourceRef="Task_DataVerify" targetRef="Task_HrmsVerify" />
+    <bpmn:sequenceFlow id="Flow_DocumentsDone" sourceRef="Task_HrmsVerify" targetRef="Gateway_Join" />
+    <bpmn:sequenceFlow id="Flow_ToNotifyCompleted" sourceRef="Gateway_Join" targetRef="Task_NotifyCompleted" />
+    <bpmn:sequenceFlow id="Flow_ToEndOnboarded" sourceRef="Task_NotifyCompleted" targetRef="EndEvent_Onboarded" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_EternalHrJoining">
+    <bpmndi:BPMNPlane id="Plane_EternalHrJoining" bpmnElement="Collaboration_EternalHr">
+      <bpmndi:BPMNShape id="Participant_Joining_di" bpmnElement="Participant_Joining" isHorizontal="true"><dc:Bounds x="160" y="80" width="4000" height="1220" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_TM_di" bpmnElement="Lane_TM" isHorizontal="true"><dc:Bounds x="190" y="80" width="3970" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_RM_di" bpmnElement="Lane_RM" isHorizontal="true"><dc:Bounds x="190" y="210" width="3970" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_CH_di" bpmnElement="Lane_CH" isHorizontal="true"><dc:Bounds x="190" y="340" width="3970" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_PM_di" bpmnElement="Lane_PM" isHorizontal="true"><dc:Bounds x="190" y="470" width="3970" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_HR_di" bpmnElement="Lane_HR" isHorizontal="true"><dc:Bounds x="190" y="600" width="3970" height="350" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_SYS_di" bpmnElement="Lane_SYS" isHorizontal="true"><dc:Bounds x="190" y="950" width="3970" height="350" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_JoiningRequest_di" bpmnElement="StartEvent_JoiningRequest"><dc:Bounds x="292.0" y="117.0" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="265" y="157.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RmReview_di" bpmnElement="Task_RmReview"><dc:Bounds x="410.0" y="225.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RmDecision_di" bpmnElement="Gateway_RmDecision" isMarkerVisible="true"><dc:Bounds x="585.0" y="240.0" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="565" y="294.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ChApproval_di" bpmnElement="Task_ChApproval"><dc:Bounds x="710.0" y="355.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ChDecision_di" bpmnElement="Gateway_ChDecision" isMarkerVisible="true"><dc:Bounds x="885.0" y="370.0" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="865" y="424.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PmApproval_di" bpmnElement="Task_PmApproval"><dc:Bounds x="1010.0" y="485.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_PmDecision_di" bpmnElement="Gateway_PmDecision" isMarkerVisible="true"><dc:Bounds x="1185.0" y="500.0" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="1165" y="554.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_SendBack_di" bpmnElement="Gateway_SendBack" isMarkerVisible="true"><dc:Bounds x="1185.0" y="110.0" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="1165" y="164.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_TmRevise_di" bpmnElement="Task_TmRevise"><dc:Bounds x="1310.0" y="95.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Rejected_di" bpmnElement="Gateway_Rejected" isMarkerVisible="true"><dc:Bounds x="1335.0" y="1200.0" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="1315" y="1254.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyRejected_di" bpmnElement="Task_NotifyRejected"><dc:Bounds x="1460.0" y="1185.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Rejected_di" bpmnElement="EndEvent_Rejected"><dc:Bounds x="1642.0" y="1207.0" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1615" y="1247.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_HrStart_di" bpmnElement="Task_HrStart"><dc:Bounds x="1310.0" y="725.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendFormLink_di" bpmnElement="Task_SendFormLink"><dc:Bounds x="1460.0" y="965.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_WaitJoiningForm_di" bpmnElement="Task_WaitJoiningForm"><dc:Bounds x="1610.0" y="965.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Timer_FormReminder_di" bpmnElement="Timer_FormReminder"><dc:Bounds x="1667.0" y="1027.0" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1640.0" y="1067.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendFormReminder_di" bpmnElement="Task_SendFormReminder"><dc:Bounds x="1760.0" y="1075.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_ReminderSent_di" bpmnElement="EndEvent_ReminderSent"><dc:Bounds x="1942.0" y="1097.0" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1915" y="1137.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_HrmsCreate_di" bpmnElement="Task_HrmsCreate"><dc:Bounds x="1760.0" y="965.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Split_di" bpmnElement="Gateway_Split"><dc:Bounds x="1935.0" y="740.0" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Induction_di" bpmnElement="Task_Induction"><dc:Bounds x="2060.0" y="615.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LetterPrepare_di" bpmnElement="Task_LetterPrepare"><dc:Bounds x="2060.0" y="725.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LetterToPm_di" bpmnElement="Task_LetterToPm"><dc:Bounds x="2210.0" y="965.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LetterReview_di" bpmnElement="Task_LetterReview"><dc:Bounds x="2360.0" y="485.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LetterDecision_di" bpmnElement="Gateway_LetterDecision" isMarkerVisible="true"><dc:Bounds x="2535.0" y="500.0" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="2515" y="554.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LetterRevise_di" bpmnElement="Task_LetterRevise"><dc:Bounds x="2360.0" y="835.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LetterToEmployee_di" bpmnElement="Task_LetterToEmployee"><dc:Bounds x="2660.0" y="965.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DocsCollect_di" bpmnElement="Task_DocsCollect"><dc:Bounds x="2810.0" y="725.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DocsReview_di" bpmnElement="Task_DocsReview"><dc:Bounds x="2960.0" y="725.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_DocsOk_di" bpmnElement="Gateway_DocsOk" isMarkerVisible="true"><dc:Bounds x="3135.0" y="740.0" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="3115" y="794.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RequestCorrection_di" bpmnElement="Task_RequestCorrection"><dc:Bounds x="3110.0" y="965.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DocsFollowUp_di" bpmnElement="Task_DocsFollowUp"><dc:Bounds x="3260.0" y="835.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Timer_Escalate_di" bpmnElement="Timer_Escalate"><dc:Bounds x="3317.0" y="897.0" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="3290.0" y="937.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EscalatePm_di" bpmnElement="Task_EscalatePm"><dc:Bounds x="3410.0" y="1075.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Escalated_di" bpmnElement="EndEvent_Escalated"><dc:Bounds x="3592.0" y="1097.0" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="3565" y="1137.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DataVerify_di" bpmnElement="Task_DataVerify"><dc:Bounds x="3410.0" y="725.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_HrmsVerify_di" bpmnElement="Task_HrmsVerify"><dc:Bounds x="3560.0" y="965.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Join_di" bpmnElement="Gateway_Join"><dc:Bounds x="3735.0" y="630.0" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyCompleted_di" bpmnElement="Task_NotifyCompleted"><dc:Bounds x="3860.0" y="965.0" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Onboarded_di" bpmnElement="EndEvent_Onboarded"><dc:Bounds x="4042.0" y="987.0" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="4015" y="1027.0" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_di" bpmnElement="Flow_Start"><di:waypoint x="328.0" y="135" /><di:waypoint x="369.0" y="135" /><di:waypoint x="369.0" y="265" /><di:waypoint x="410.0" y="265" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToRmDecision_di" bpmnElement="Flow_ToRmDecision"><di:waypoint x="510.0" y="265" /><di:waypoint x="585.0" y="265" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RmForward_di" bpmnElement="Flow_RmForward"><di:waypoint x="635.0" y="265" /><di:waypoint x="672.5" y="265" /><di:waypoint x="672.5" y="395" /><di:waypoint x="710.0" y="395" /><bpmndi:BPMNLabel><dc:Bounds x="641.0" y="243" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RmSendBack_di" bpmnElement="Flow_RmSendBack"><di:waypoint x="610" y="240.0" /><di:waypoint x="610" y="135" /><di:waypoint x="1185.0" y="135" /><bpmndi:BPMNLabel><dc:Bounds x="616" y="218.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RmReject_di" bpmnElement="Flow_RmReject"><di:waypoint x="610" y="290.0" /><di:waypoint x="610" y="1225" /><di:waypoint x="1335.0" y="1225" /><bpmndi:BPMNLabel><dc:Bounds x="616" y="268.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToChDecision_di" bpmnElement="Flow_ToChDecision"><di:waypoint x="810.0" y="395" /><di:waypoint x="885.0" y="395" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ChApprove_di" bpmnElement="Flow_ChApprove"><di:waypoint x="935.0" y="395" /><di:waypoint x="972.5" y="395" /><di:waypoint x="972.5" y="525" /><di:waypoint x="1010.0" y="525" /><bpmndi:BPMNLabel><dc:Bounds x="941.0" y="373" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ChSendBack_di" bpmnElement="Flow_ChSendBack"><di:waypoint x="910" y="370.0" /><di:waypoint x="910" y="135" /><di:waypoint x="1185.0" y="135" /><bpmndi:BPMNLabel><dc:Bounds x="916" y="348.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ChReject_di" bpmnElement="Flow_ChReject"><di:waypoint x="910" y="420.0" /><di:waypoint x="910" y="1225" /><di:waypoint x="1335.0" y="1225" /><bpmndi:BPMNLabel><dc:Bounds x="916" y="398.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToPmDecision_di" bpmnElement="Flow_ToPmDecision"><di:waypoint x="1110.0" y="525" /><di:waypoint x="1185.0" y="525" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PmApprove_di" bpmnElement="Flow_PmApprove"><di:waypoint x="1235.0" y="525" /><di:waypoint x="1272.5" y="525" /><di:waypoint x="1272.5" y="765" /><di:waypoint x="1310.0" y="765" /><bpmndi:BPMNLabel><dc:Bounds x="1241.0" y="503" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PmSendBack_di" bpmnElement="Flow_PmSendBack"><di:waypoint x="1210" y="500.0" /><di:waypoint x="1210" y="160.0" /><bpmndi:BPMNLabel><dc:Bounds x="1216" y="478.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PmReject_di" bpmnElement="Flow_PmReject"><di:waypoint x="1210" y="550.0" /><di:waypoint x="1210" y="1225" /><di:waypoint x="1335.0" y="1225" /><bpmndi:BPMNLabel><dc:Bounds x="1216" y="528.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToRevise_di" bpmnElement="Flow_ToRevise"><di:waypoint x="1235.0" y="135" /><di:waypoint x="1310.0" y="135" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Resubmit_di" bpmnElement="Flow_Resubmit"><di:waypoint x="1360" y="175.0" /><di:waypoint x="1360" y="205.0" /><di:waypoint x="460" y="205.0" /><di:waypoint x="460" y="225.0" /><bpmndi:BPMNLabel><dc:Bounds x="1366" y="153.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToNotifyRejected_di" bpmnElement="Flow_ToNotifyRejected"><di:waypoint x="1385.0" y="1225" /><di:waypoint x="1460.0" y="1225" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToEndRejected_di" bpmnElement="Flow_ToEndRejected"><di:waypoint x="1560.0" y="1225" /><di:waypoint x="1642.0" y="1225" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToSendLink_di" bpmnElement="Flow_ToSendLink"><di:waypoint x="1410.0" y="765" /><di:waypoint x="1435.0" y="765" /><di:waypoint x="1435.0" y="1005" /><di:waypoint x="1460.0" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToWaitForm_di" bpmnElement="Flow_ToWaitForm"><di:waypoint x="1560.0" y="1005" /><di:waypoint x="1610.0" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToReminder_di" bpmnElement="Flow_ToReminder"><di:waypoint x="1685.0" y="1063.0" /><di:waypoint x="1685.0" y="1115" /><di:waypoint x="1760.0" y="1115" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToReminderEnd_di" bpmnElement="Flow_ToReminderEnd"><di:waypoint x="1860.0" y="1115" /><di:waypoint x="1942.0" y="1115" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FormSubmitted_di" bpmnElement="Flow_FormSubmitted"><di:waypoint x="1710.0" y="1005" /><di:waypoint x="1760.0" y="1005" /><bpmndi:BPMNLabel><dc:Bounds x="1716.0" y="983" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToSplit_di" bpmnElement="Flow_ToSplit"><di:waypoint x="1860.0" y="1005" /><di:waypoint x="1897.5" y="1005" /><di:waypoint x="1897.5" y="765" /><di:waypoint x="1935.0" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToInduction_di" bpmnElement="Flow_ToInduction"><di:waypoint x="1985.0" y="765" /><di:waypoint x="2022.5" y="765" /><di:waypoint x="2022.5" y="655" /><di:waypoint x="2060.0" y="655" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToLetterPrepare_di" bpmnElement="Flow_ToLetterPrepare"><di:waypoint x="1985.0" y="765" /><di:waypoint x="2060.0" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_InductionDone_di" bpmnElement="Flow_InductionDone"><di:waypoint x="2160.0" y="655" /><di:waypoint x="3735.0" y="655" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToLetterToPm_di" bpmnElement="Flow_ToLetterToPm"><di:waypoint x="2160.0" y="765" /><di:waypoint x="2185.0" y="765" /><di:waypoint x="2185.0" y="1005" /><di:waypoint x="2210.0" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToLetterReview_di" bpmnElement="Flow_ToLetterReview"><di:waypoint x="2310.0" y="1005" /><di:waypoint x="2335.0" y="1005" /><di:waypoint x="2335.0" y="525" /><di:waypoint x="2360.0" y="525" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToLetterDecision_di" bpmnElement="Flow_ToLetterDecision"><di:waypoint x="2460.0" y="525" /><di:waypoint x="2535.0" y="525" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LetterApproved_di" bpmnElement="Flow_LetterApproved"><di:waypoint x="2585.0" y="525" /><di:waypoint x="2622.5" y="525" /><di:waypoint x="2622.5" y="1005" /><di:waypoint x="2660.0" y="1005" /><bpmndi:BPMNLabel><dc:Bounds x="2591.0" y="503" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LetterChanges_di" bpmnElement="Flow_LetterChanges"><di:waypoint x="2560" y="550.0" /><di:waypoint x="2560" y="815.0" /><di:waypoint x="2410" y="815.0" /><di:waypoint x="2410" y="835.0" /><bpmndi:BPMNLabel><dc:Bounds x="2566" y="528.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LetterResend_di" bpmnElement="Flow_LetterResend"><di:waypoint x="2410" y="915.0" /><di:waypoint x="2410" y="945.0" /><di:waypoint x="2260" y="945.0" /><di:waypoint x="2260" y="965.0" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToDocsCollect_di" bpmnElement="Flow_ToDocsCollect"><di:waypoint x="2760.0" y="1005" /><di:waypoint x="2785.0" y="1005" /><di:waypoint x="2785.0" y="765" /><di:waypoint x="2810.0" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToDocsReview_di" bpmnElement="Flow_ToDocsReview"><di:waypoint x="2910.0" y="765" /><di:waypoint x="2960.0" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToDocsOk_di" bpmnElement="Flow_ToDocsOk"><di:waypoint x="3060.0" y="765" /><di:waypoint x="3135.0" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DocsOk_di" bpmnElement="Flow_DocsOk"><di:waypoint x="3185.0" y="765" /><di:waypoint x="3410.0" y="765" /><bpmndi:BPMNLabel><dc:Bounds x="3191.0" y="743" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DocsIssues_di" bpmnElement="Flow_DocsIssues"><di:waypoint x="3160" y="790.0" /><di:waypoint x="3160" y="965.0" /><bpmndi:BPMNLabel><dc:Bounds x="3166" y="768.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToFollowUp_di" bpmnElement="Flow_ToFollowUp"><di:waypoint x="3210.0" y="1005" /><di:waypoint x="3235.0" y="1005" /><di:waypoint x="3235.0" y="875" /><di:waypoint x="3260.0" y="875" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReReview_di" bpmnElement="Flow_ReReview"><di:waypoint x="3310" y="835.0" /><di:waypoint x="3310" y="825.0" /><di:waypoint x="3010" y="825.0" /><di:waypoint x="3010" y="805.0" /><bpmndi:BPMNLabel><dc:Bounds x="3316" y="813.0" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToEscalate_di" bpmnElement="Flow_ToEscalate"><di:waypoint x="3335.0" y="933.0" /><di:waypoint x="3335.0" y="1115" /><di:waypoint x="3410.0" y="1115" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToEscalatedEnd_di" bpmnElement="Flow_ToEscalatedEnd"><di:waypoint x="3510.0" y="1115" /><di:waypoint x="3592.0" y="1115" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToHrmsVerify_di" bpmnElement="Flow_ToHrmsVerify"><di:waypoint x="3510.0" y="765" /><di:waypoint x="3535.0" y="765" /><di:waypoint x="3535.0" y="1005" /><di:waypoint x="3560.0" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DocumentsDone_di" bpmnElement="Flow_DocumentsDone"><di:waypoint x="3660.0" y="1005" /><di:waypoint x="3697.5" y="1005" /><di:waypoint x="3697.5" y="655" /><di:waypoint x="3735.0" y="655" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToNotifyCompleted_di" bpmnElement="Flow_ToNotifyCompleted"><di:waypoint x="3785.0" y="655" /><di:waypoint x="3822.5" y="655" /><di:waypoint x="3822.5" y="1005" /><di:waypoint x="3860.0" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToEndOnboarded_di" bpmnElement="Flow_ToEndOnboarded"><di:waypoint x="3960.0" y="1005" /><di:waypoint x="4042.0" y="1005" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

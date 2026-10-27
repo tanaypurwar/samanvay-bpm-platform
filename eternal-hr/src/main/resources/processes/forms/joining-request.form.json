@@ -1,0 +1,126 @@
+{
+  "name": "New joining request",
+  "schema": {
+    "title": "New joining request",
+    "description": "Raise a joining for approval by the reporting manager, country head and project manager.",
+    "type": "object",
+    "required": [
+      "candidateName",
+      "candidateEmail",
+      "candidateMobile",
+      "designation",
+      "department",
+      "projectName",
+      "workLocation",
+      "employmentType",
+      "proposedJoiningDate",
+      "proposedAnnualCtc"
+    ],
+    "properties": {
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "minLength": 2,
+        "maxLength": 100
+      },
+      "candidateEmail": {
+        "type": "string",
+        "format": "email",
+        "title": "Candidate personal email",
+        "description": "The joining form link is sent here."
+      },
+      "candidateMobile": {
+        "type": "string",
+        "title": "Candidate mobile",
+        "pattern": "^[6-9][0-9]{9}$",
+        "description": "10-digit Indian mobile number"
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "minLength": 2,
+        "maxLength": 100
+      },
+      "department": {
+        "type": "string",
+        "title": "Department",
+        "enum": [
+          "Sales",
+          "Operations",
+          "Engineering",
+          "Finance",
+          "Human Resources",
+          "Customer Support",
+          "Other"
+        ]
+      },
+      "projectName": {
+        "type": "string",
+        "title": "Project / client",
+        "maxLength": 100
+      },
+      "workLocation": {
+        "type": "string",
+        "title": "Work location",
+        "maxLength": 100
+      },
+      "employmentType": {
+        "type": "string",
+        "title": "Employment type",
+        "oneOf": [
+          {
+            "const": "permanent",
+            "title": "Permanent"
+          },
+          {
+            "const": "contract",
+            "title": "Contract"
+          },
+          {
+            "const": "intern",
+            "title": "Intern"
+          }
+        ]
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Proposed date of joining"
+      },
+      "proposedAnnualCtc": {
+        "type": "number",
+        "title": "Proposed annual CTC (INR)",
+        "minimum": 0
+      },
+      "requestRemarks": {
+        "type": "string",
+        "title": "Remarks",
+        "maxLength": 1000
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:order": [
+      "candidateName",
+      "candidateEmail",
+      "candidateMobile",
+      "designation",
+      "department",
+      "projectName",
+      "workLocation",
+      "employmentType",
+      "proposedJoiningDate",
+      "proposedAnnualCtc",
+      "requestRemarks"
+    ],
+    "employmentType": {
+      "ui:widget": "radio"
+    },
+    "requestRemarks": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

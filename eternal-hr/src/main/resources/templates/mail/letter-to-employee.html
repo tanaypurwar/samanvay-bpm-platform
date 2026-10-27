@@ -1,0 +1,11 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{mail/layout :: layout('Your appointment letter', ~{::div.content})}">
+<div class="content">
+  <p>Dear <span th:text="${candidateName}">Asha</span>,</p>
+  <p>Congratulations! Here are the details of your appointment with Eternal HR. Your appointment letter is
+    referenced below; HR will share the signed copy with you.</p>
+  <table th:replace="~{mail/letter-details :: details}"></table>
+  <p>HR will contact you about the documents to submit. If anything here looks wrong, please reply to this email.</p>
+  <p>We look forward to welcoming you.</p>
+</div>
+</html>

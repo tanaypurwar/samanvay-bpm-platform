@@ -1,0 +1,262 @@
+{
+  "name": "Collect employee documents",
+  "schema": {
+    "title": "Collect employee documents",
+    "description": "Record each required document and move the received ones to the HRMS.",
+    "type": "object",
+    "required": [
+      "docAadhaar",
+      "docPan",
+      "docPifKit",
+      "docEducation",
+      "docCv",
+      "docBankProof",
+      "docPreviousEmployment",
+      "docPhoto",
+      "documentsMovedToHrms"
+    ],
+    "properties": {
+      "employeeCode": {
+        "type": "string",
+        "title": "Employee code (HRMS)",
+        "readOnly": true
+      },
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "candidateEmail": {
+        "type": "string",
+        "title": "Candidate personal email",
+        "readOnly": true
+      },
+      "docAadhaar": {
+        "type": "string",
+        "title": "Aadhaar card (both sides)",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ]
+      },
+      "docPan": {
+        "type": "string",
+        "title": "PAN card",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ]
+      },
+      "docPifKit": {
+        "type": "string",
+        "title": "PIF kit",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ]
+      },
+      "docEducation": {
+        "type": "string",
+        "title": "Education certificates",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ]
+      },
+      "docCv": {
+        "type": "string",
+        "title": "CV / resume",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ]
+      },
+      "docBankProof": {
+        "type": "string",
+        "title": "Bank account proof (for salary)",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ]
+      },
+      "docPreviousEmployment": {
+        "type": "string",
+        "title": "Previous employment certificate(s)",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ]
+      },
+      "docPhoto": {
+        "type": "string",
+        "title": "Passport-size photograph",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ]
+      },
+      "docOther": {
+        "type": "string",
+        "title": "Other documents received",
+        "maxLength": 1000,
+        "description": "Any additional records needed for compliance."
+      },
+      "documentsMovedToHrms": {
+        "type": "boolean",
+        "title": "All received documents are moved to the HRMS",
+        "const": true
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:order": [
+      "employeeCode",
+      "candidateName",
+      "candidateEmail",
+      "docAadhaar",
+      "docPan",
+      "docPifKit",
+      "docEducation",
+      "docCv",
+      "docBankProof",
+      "docPreviousEmployment",
+      "docPhoto",
+      "docOther",
+      "documentsMovedToHrms"
+    ],
+    "docAadhaar": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "docPan": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "docPifKit": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "docEducation": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "docCv": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "docBankProof": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "docPreviousEmployment": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "docPhoto": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "docOther": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

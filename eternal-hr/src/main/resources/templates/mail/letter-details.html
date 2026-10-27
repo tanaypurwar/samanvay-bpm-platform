@@ -1,0 +1,13 @@
+<table xmlns:th="http://www.thymeleaf.org" th:fragment="details" role="presentation" cellpadding="0" cellspacing="0"
+       style="width:100%;border-collapse:collapse;margin:12px 0;font-size:14px;">
+  <tr th:if="${employeeCode}"><td style="padding:6px 0;color:#6b6780;width:40%;">Employee code</td><td style="padding:6px 0;" th:text="${employeeCode}">EHR-1</td></tr>
+  <tr><td style="padding:6px 0;color:#6b6780;">Name</td><td style="padding:6px 0;" th:text="${candidateName}">Asha</td></tr>
+  <tr><td style="padding:6px 0;color:#6b6780;">Designation</td><td style="padding:6px 0;" th:text="${designation}">Designer</td></tr>
+  <tr th:if="${annualCtc}"><td style="padding:6px 0;color:#6b6780;">Annual CTC</td>
+    <td style="padding:6px 0;" th:text="'INR ' + ${#numbers.formatDecimal(annualCtc, 1, 'COMMA', 0, 'POINT')}">INR 6,00,000</td></tr>
+  <tr th:if="${joiningDate}"><td style="padding:6px 0;color:#6b6780;">Date of joining</td>
+    <td style="padding:6px 0;" th:text="${#dates.format(joiningDate, 'd MMMM yyyy')}">1 December 2026</td></tr>
+  <tr th:if="${workLocation}"><td style="padding:6px 0;color:#6b6780;">Location</td><td style="padding:6px 0;" th:text="${workLocation}">Pune</td></tr>
+  <tr th:if="${letterReference}"><td style="padding:6px 0;color:#6b6780;">Letter</td>
+    <td style="padding:6px 0;word-break:break-all;" th:text="${letterReference}">ref</td></tr>
+</table>
