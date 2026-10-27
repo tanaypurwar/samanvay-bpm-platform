@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{joining/layout :: head('Joining form')}"></head>
+<body>
+<header th:replace="~{joining/layout :: header}"></header>
+<main>
+  <h1>Welcome, <span th:text="${joining.candidateName}">Asha</span></h1>
+  <p class="lead">
+    Please complete your joining details<span th:if="${joining.designation}"> for the role of
+    <strong th:text="${joining.designation}">Designer</strong></span>. HR uses them to create your employee record.
+    It takes about 5 minutes.
+  </p>
+
+  <form method="post" th:action="@{/joining/{token}(token=${token})}" th:object="${form}" enctype="multipart/form-data"
+        novalidate>
+    <div class="alert" th:if="${#fields.hasErrors('*') or !#lists.isEmpty(documentErrors ?: {})}" role="alert">
+      Some details need your attention. Please check the highlighted fields.
+    </div>
+
+    <section class="card">
+      <h2>About you</h2>
+      <div class="grid">
+        <div class="wide" th:classappend="${#fields.hasErrors('candidateName')} ? invalid">
+          <label for="candidateName">Full name <span class="hint">(as on your PAN card)</span></label>
+          <input id="candidateName" th:field="*{candidateName}" autocomplete="name" required>
+          <div class="err" th:if="${#fields.hasErrors('candidateName')}" th:errors="*{candidateName}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('dateOfBirth')} ? invalid">
+          <label for="dateOfBirth">Date of birth</label>
+          <input id="dateOfBirth" type="date" th:field="*{dateOfBirth}" autocomplete="bday" required>
+          <div class="err" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('gender')} ? invalid">
+          <label for="gender">Gender</label>
+          <select id="gender" th:field="*{gender}" required>
+            <option value="">Choose…</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="other">Other</option>
+            <option value="undisclosed">Prefer not to say</option>
+          </select>
+          <div class="err" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
+        </div>
+        <div class="wide" th:classappend="${#fields.hasErrors('fatherOrSpouseName')} ? invalid">
+          <label for="fatherOrSpouseName">Father's or spouse's name</label>
+          <input id="fatherOrSpouseName" th:field="*{fatherOrSpouseName}" required>
+          <div class="err" th:if="${#fields.hasErrors('fatherOrSpouseName')}" th:errors="*{fatherOrSpouseName}"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Contact</h2>
+      <div class="grid">
+        <div th:classappend="${#fields.hasErrors('candidateMobile')} ? invalid">
+          <label for="candidateMobile">Mobile</label>
+          <input id="candidateMobile" th:field="*{candidateMobile}" inputmode="numeric" autocomplete="tel-national" required>
+          <div class="err" th:if="${#fields.hasErrors('candidateMobile')}" th:errors="*{candidateMobile}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('candidateEmail')} ? invalid">
+          <label for="candidateEmail">Personal email</label>
+          <input id="candidateEmail" type="email" th:field="*{candidateEmail}" autocomplete="email" required>
+          <div class="err" th:if="${#fields.hasErrors('candidateEmail')}" th:errors="*{candidateEmail}"></div>
+        </div>
+        <div class="wide" th:classappend="${#fields.hasErrors('currentAddress')} ? invalid">
+          <label for="currentAddress">Current address</label>
+          <textarea id="currentAddress" th:field="*{currentAddress}" autocomplete="street-address" required></textarea>
+          <div class="err" th:if="${#fields.hasErrors('currentAddress')}" th:errors="*{currentAddress}"></div>
+        </div>
+        <div class="wide" th:classappend="${#fields.hasErrors('permanentAddress')} ? invalid">
+          <label for="permanentAddress">Permanent address</label>
+          <textarea id="permanentAddress" th:field="*{permanentAddress}" required></textarea>
+          <div class="err" th:if="${#fields.hasErrors('permanentAddress')}" th:errors="*{permanentAddress}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('emergencyContactName')} ? invalid">
+          <label for="emergencyContactName">Emergency contact name</label>
+          <input id="emergencyContactName" th:field="*{emergencyContactName}" required>
+          <div class="err" th:if="${#fields.hasErrors('emergencyContactName')}" th:errors="*{emergencyContactName}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('emergencyContactPhone')} ? invalid">
+          <label for="emergencyContactPhone">Emergency contact phone</label>
+          <input id="emergencyContactPhone" th:field="*{emergencyContactPhone}" inputmode="tel" required>
+          <div class="err" th:if="${#fields.hasErrors('emergencyContactPhone')}" th:errors="*{emergencyContactPhone}"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Identity and bank</h2>
+      <p class="hint" style="margin-top:-6px">Only the last 4 digits of your Aadhaar and bank account here. Attach the
+        documents themselves below.</p>
+      <div class="grid">
+        <div th:classappend="${#fields.hasErrors('panNumber')} ? invalid">
+          <label for="panNumber">PAN</label>
+          <input id="panNumber" th:field="*{panNumber}" maxlength="10" autocapitalize="characters" required>
+          <div class="err" th:if="${#fields.hasErrors('panNumber')}" th:errors="*{panNumber}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('aadhaarLast4')} ? invalid">
+          <label for="aadhaarLast4">Aadhaar <span class="hint">(last 4 digits)</span></label>
+          <input id="aadhaarLast4" th:field="*{aadhaarLast4}" maxlength="4" inputmode="numeric" required>
+          <div class="err" th:if="${#fields.hasErrors('aadhaarLast4')}" th:errors="*{aadhaarLast4}"></div>
+        </div>
+        <div class="wide" th:classappend="${#fields.hasErrors('bankName')} ? invalid">
+          <label for="bankName">Bank name <span class="hint">(salary account)</span></label>
+          <input id="bankName" th:field="*{bankName}" required>
+          <div class="err" th:if="${#fields.hasErrors('bankName')}" th:errors="*{bankName}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('bankIfsc')} ? invalid">
+          <label for="bankIfsc">IFSC</label>
+          <input id="bankIfsc" th:field="*{bankIfsc}" maxlength="11" autocapitalize="characters" required>
+          <div class="err" th:if="${#fields.hasErrors('bankIfsc')}" th:errors="*{bankIfsc}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('bankAccountLast4')} ? invalid">
+          <label for="bankAccountLast4">Account number <span class="hint">(last 4 digits)</span></label>
+          <input id="bankAccountLast4" th:field="*{bankAccountLast4}" maxlength="4" inputmode="numeric" required>
+          <div class="err" th:if="${#fields.hasErrors('bankAccountLast4')}" th:errors="*{bankAccountLast4}"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Education and experience</h2>
+      <div class="grid">
+        <div class="wide" th:classappend="${#fields.hasErrors('highestQualification')} ? invalid">
+          <label for="highestQualification">Highest qualification</label>
+          <input id="highestQualification" th:field="*{highestQualification}" required>
+          <div class="err" th:if="${#fields.hasErrors('highestQualification')}" th:errors="*{highestQualification}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('previousEmployer')} ? invalid">
+          <label for="previousEmployer">Previous employer <span class="hint">(optional)</span></label>
+          <input id="previousEmployer" th:field="*{previousEmployer}">
+          <div class="err" th:if="${#fields.hasErrors('previousEmployer')}" th:errors="*{previousEmployer}"></div>
+        </div>
+        <div th:classappend="${#fields.hasErrors('totalExperienceYears')} ? invalid">
+          <label for="totalExperienceYears">Total experience <span class="hint">(years)</span></label>
+          <input id="totalExperienceYears" type="number" min="0" max="60" step="0.5" th:field="*{totalExperienceYears}" required>
+          <div class="err" th:if="${#fields.hasErrors('totalExperienceYears')}" th:errors="*{totalExperienceYears}"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" th:if="${documentsEnabled}" th:classappend="${!#lists.isEmpty(documentErrors ?: {})} ? invalid">
+      <h2>Documents <span class="hint">(optional)</span></h2>
+      <p class="hint" style="margin-top:-6px">Attach scans or photos of your documents, such as your Aadhaar card, PAN
+        card, photograph, certificates and bank proof. PDF, JPEG or PNG, up to
+        <span th:text="${maxFileSizeMb}">10</span> MB each. Choose what each file is.</p>
+      <div class="alert" th:if="${reattach}" role="alert">For your security, your browser does not keep chosen files
+        when a form is sent back. Please attach your documents again.</div>
+      <div class="err" th:each="message : ${documentErrors}" th:text="${message}">Choose what "scan.pdf" is.</div>
+      <div id="documents" th:attr="data-max=${maxFiles}">
+        <div class="doc-row" th:each="row : ${#numbers.sequence(1, 3)}">
+          <select name="documentTypes" aria-label="Document type">
+            <option value="">What is it?</option>
+            <option th:each="type : ${documentTypes}" th:value="${type.id}" th:text="${type.label}">PAN card</option>
+          </select>
+          <input type="file" name="documents" accept="application/pdf,image/jpeg,image/png" aria-label="Document file">
+        </div>
+      </div>
+      <button type="button" class="secondary" id="add-document">+ Add another document</button>
+    </section>
+
+    <section class="card" th:classappend="${#fields.hasErrors('declaration')} ? invalid">
+      <label class="check">
+        <input type="checkbox" th:field="*{declaration}">
+        <span>I confirm these details are correct and match my documents.</span>
+      </label>
+      <div class="err" th:if="${#fields.hasErrors('declaration')}" th:errors="*{declaration}"></div>
+    </section>
+
+    <div class="actions"><button type="submit">Submit joining form</button></div>
+  </form>
+</main>
+<script th:if="${documentsEnabled}">
+  (function () {
+    var list = document.getElementById('documents');
+    var add = document.getElementById('add-document');
+    var max = parseInt(list.getAttribute('data-max'), 10) || 10;
+    function update() { add.hidden = list.children.length >= max; }
+    add.addEventListener('click', function () {
+      var row = list.firstElementChild.cloneNode(true);
+      row.querySelector('select').value = '';
+      row.querySelector('input').value = '';
+      list.appendChild(row);
+      update();
+      row.querySelector('select').focus();
+    });
+    update();
+  })();
+</script>
+</body>
+</html>

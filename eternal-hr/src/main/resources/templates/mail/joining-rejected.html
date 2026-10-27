@@ -1,0 +1,10 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{mail/layout :: layout('Joining request rejected', ~{::div.content})}">
+<div class="content">
+  <p>The joining request for <strong th:text="${candidateName}">Asha Rao</strong><span th:if="${designation}">
+    (<span th:text="${designation}">Designer</span>)</span> was rejected by the
+    <span th:text="${#strings.toLowerCase(rejectedBy)}">reporting manager</span>.</p>
+  <p style="margin-bottom:4px;"><strong>Comments</strong></p>
+  <p style="white-space:pre-line;background:#f6f5fa;border-radius:8px;padding:12px;margin-top:0;" th:text="${comments}">Budget</p>
+</div>
+</html>

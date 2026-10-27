@@ -1,0 +1,181 @@
+{
+  "name": "Approve joining (Country Head)",
+  "schema": {
+    "title": "Approve joining",
+    "description": "Approve to forward the joining to the project manager.",
+    "type": "object",
+    "required": [
+      "chDecision"
+    ],
+    "properties": {
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "candidateEmail": {
+        "type": "string",
+        "title": "Candidate personal email",
+        "readOnly": true
+      },
+      "candidateMobile": {
+        "type": "string",
+        "title": "Candidate mobile",
+        "readOnly": true
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "readOnly": true
+      },
+      "department": {
+        "type": "string",
+        "title": "Department",
+        "enum": [
+          "Sales",
+          "Operations",
+          "Engineering",
+          "Finance",
+          "Human Resources",
+          "Customer Support",
+          "Other"
+        ],
+        "readOnly": true
+      },
+      "projectName": {
+        "type": "string",
+        "title": "Project / client",
+        "readOnly": true
+      },
+      "workLocation": {
+        "type": "string",
+        "title": "Work location",
+        "readOnly": true
+      },
+      "employmentType": {
+        "type": "string",
+        "title": "Employment type",
+        "oneOf": [
+          {
+            "const": "permanent",
+            "title": "Permanent"
+          },
+          {
+            "const": "contract",
+            "title": "Contract"
+          },
+          {
+            "const": "intern",
+            "title": "Intern"
+          }
+        ],
+        "readOnly": true
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Proposed date of joining",
+        "readOnly": true
+      },
+      "proposedAnnualCtc": {
+        "type": "number",
+        "title": "Proposed annual CTC (INR)",
+        "readOnly": true
+      },
+      "requestRemarks": {
+        "type": "string",
+        "title": "Remarks",
+        "readOnly": true
+      },
+      "initiatorName": {
+        "type": "string",
+        "title": "Raised by",
+        "readOnly": true
+      },
+      "rmComments": {
+        "type": "string",
+        "title": "Reporting manager's comments",
+        "readOnly": true
+      },
+      "chDecision": {
+        "type": "string",
+        "title": "Your decision",
+        "oneOf": [
+          {
+            "const": "approve",
+            "title": "Approve and forward to project manager"
+          },
+          {
+            "const": "sendBack",
+            "title": "Send back to territory manager for changes"
+          },
+          {
+            "const": "reject",
+            "title": "Reject"
+          }
+        ]
+      },
+      "chComments": {
+        "type": "string",
+        "title": "Comments",
+        "maxLength": 1000,
+        "description": "Required when sending back or rejecting."
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "chDecision": {
+              "enum": [
+                "sendBack",
+                "reject"
+              ]
+            }
+          },
+          "required": [
+            "chDecision"
+          ]
+        },
+        "then": {
+          "required": [
+            "chComments"
+          ],
+          "properties": {
+            "chComments": {
+              "minLength": 5
+            }
+          }
+        }
+      }
+    ]
+  },
+  "uiSchema": {
+    "ui:order": [
+      "candidateName",
+      "candidateEmail",
+      "candidateMobile",
+      "designation",
+      "department",
+      "projectName",
+      "workLocation",
+      "employmentType",
+      "proposedJoiningDate",
+      "proposedAnnualCtc",
+      "requestRemarks",
+      "initiatorName",
+      "rmComments",
+      "chDecision",
+      "chComments"
+    ],
+    "chDecision": {
+      "ui:widget": "radio"
+    },
+    "chComments": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

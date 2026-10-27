@@ -1,0 +1,157 @@
+{
+  "name": "Update joining request",
+  "schema": {
+    "title": "Update joining request",
+    "description": "The request was sent back. Make the changes asked for and resubmit it to the reporting manager.",
+    "type": "object",
+    "required": [
+      "candidateName",
+      "candidateEmail",
+      "candidateMobile",
+      "designation",
+      "department",
+      "projectName",
+      "workLocation",
+      "employmentType",
+      "proposedJoiningDate",
+      "proposedAnnualCtc",
+      "revisionNote"
+    ],
+    "properties": {
+      "rmComments": {
+        "type": "string",
+        "title": "Reporting manager's comments",
+        "readOnly": true
+      },
+      "chComments": {
+        "type": "string",
+        "title": "Country head's comments",
+        "readOnly": true
+      },
+      "pmComments": {
+        "type": "string",
+        "title": "Project manager's comments",
+        "readOnly": true
+      },
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "minLength": 2,
+        "maxLength": 100
+      },
+      "candidateEmail": {
+        "type": "string",
+        "format": "email",
+        "title": "Candidate personal email",
+        "description": "The joining form link is sent here."
+      },
+      "candidateMobile": {
+        "type": "string",
+        "title": "Candidate mobile",
+        "pattern": "^[6-9][0-9]{9}$",
+        "description": "10-digit Indian mobile number"
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "minLength": 2,
+        "maxLength": 100
+      },
+      "department": {
+        "type": "string",
+        "title": "Department",
+        "enum": [
+          "Sales",
+          "Operations",
+          "Engineering",
+          "Finance",
+          "Human Resources",
+          "Customer Support",
+          "Other"
+        ]
+      },
+      "projectName": {
+        "type": "string",
+        "title": "Project / client",
+        "maxLength": 100
+      },
+      "workLocation": {
+        "type": "string",
+        "title": "Work location",
+        "maxLength": 100
+      },
+      "employmentType": {
+        "type": "string",
+        "title": "Employment type",
+        "oneOf": [
+          {
+            "const": "permanent",
+            "title": "Permanent"
+          },
+          {
+            "const": "contract",
+            "title": "Contract"
+          },
+          {
+            "const": "intern",
+            "title": "Intern"
+          }
+        ]
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Proposed date of joining"
+      },
+      "proposedAnnualCtc": {
+        "type": "number",
+        "title": "Proposed annual CTC (INR)",
+        "minimum": 0
+      },
+      "requestRemarks": {
+        "type": "string",
+        "title": "Remarks",
+        "maxLength": 1000
+      },
+      "revisionNote": {
+        "type": "string",
+        "title": "What did you change?",
+        "maxLength": 1000
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:order": [
+      "rmComments",
+      "chComments",
+      "pmComments",
+      "candidateName",
+      "candidateEmail",
+      "candidateMobile",
+      "designation",
+      "department",
+      "projectName",
+      "workLocation",
+      "employmentType",
+      "proposedJoiningDate",
+      "proposedAnnualCtc",
+      "requestRemarks",
+      "revisionNote"
+    ],
+    "employmentType": {
+      "ui:widget": "radio"
+    },
+    "requestRemarks": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    },
+    "revisionNote": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

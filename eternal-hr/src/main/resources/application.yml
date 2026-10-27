@@ -1,0 +1,73 @@
+server:
+  port: ${ETERNAL_HR_PORT:8090}
+  forward-headers-strategy: native
+
+spring:
+  application:
+    name: eternal-hr
+  mail:
+    host: ${ETERNAL_HR_SMTP_HOST:localhost}
+    port: ${ETERNAL_HR_SMTP_PORT:1025}
+    username: ${ETERNAL_HR_SMTP_USERNAME:}
+    password: ${ETERNAL_HR_SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${ETERNAL_HR_SMTP_AUTH:false}
+      mail.smtp.starttls.enable: ${ETERNAL_HR_SMTP_STARTTLS:false}
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+  servlet:
+    multipart:
+      # joining form documents: eternal-hr.document-store.max-file-size each, several per form
+      max-file-size: 10MB
+      max-request-size: 60MB
+
+# External task client: long-polls the engine for this app's topics
+camunda.bpm.client:
+  base-url: ${ETERNAL_HR_ENGINE_URL:http://localhost:8080/engine-rest}
+  worker-id: eternal-hr
+  async-response-timeout: 20000
+  lock-duration: 60000
+  max-tasks: 5
+  basic-auth:
+    username: ${ETERNAL_HR_ENGINE_USERNAME:demo}
+    password: ${ETERNAL_HR_ENGINE_PASSWORD:demo}
+
+eternal-hr:
+  engine:
+    base-url: ${camunda.bpm.client.base-url}
+    username: ${camunda.bpm.client.basic-auth.username}
+    password: ${camunda.bpm.client.basic-auth.password}
+  tasklist-url: ${ETERNAL_HR_TASKLIST_URL:http://localhost:5173}
+  joining-form:
+    # where employees open the form, e.g. https://dev-samanvay.ulesolutions.com
+    public-base-url: ${ETERNAL_HR_PUBLIC_URL:http://localhost:8090}
+    # signs the form links; at least 32 characters. The default is for local development only.
+    secret: ${ETERNAL_HR_LINK_SECRET:local-development-secret-change-me-0123456789}
+    link-validity: ${ETERNAL_HR_LINK_VALIDITY:P14D}
+    reminder-cycle: ${ETERNAL_HR_FORM_REMINDER_CYCLE:R3/P2D}
+  documents:
+    escalate-after: ${ETERNAL_HR_DOCUMENT_ESCALATION_AFTER:P3D}
+  # the platform's document bucket (same as the tasklist's); uploads on the joining form are off while it is empty
+  document-store:
+    bucket: ${ETERNAL_HR_DOCUMENTS_BUCKET:}
+    region: ${ETERNAL_HR_DOCUMENTS_REGION:ap-south-1}
+    # S3-compatible store instead of AWS (e.g. http://s3:9000 locally); empty for AWS S3
+    endpoint: ${ETERNAL_HR_DOCUMENTS_ENDPOINT:}
+    # empty: default AWS credentials (EC2 instance role, environment, profile)
+    access-key: ${ETERNAL_HR_DOCUMENTS_ACCESS_KEY:}
+    secret-key: ${ETERNAL_HR_DOCUMENTS_SECRET_KEY:}
+    create-bucket: ${ETERNAL_HR_DOCUMENTS_CREATE_BUCKET:false}
+    max-file-size: 10MB
+    max-files: 10
+  mail:
+    from: ${ETERNAL_HR_MAIL_FROM:Eternal HR <onboarding@eternal-hr.demo>}
+    hr-email: ${ETERNAL_HR_HR_EMAIL:hr@eternal-hr.demo}
+  demo:
+    seed-users: ${ETERNAL_HR_DEMO_USERS:false}
+    password: ${ETERNAL_HR_DEMO_PASSWORD:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

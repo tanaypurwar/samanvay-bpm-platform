@@ -1,0 +1,9 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{mail/layout :: layout('Documents still missing', ~{::div.content})}">
+<div class="content">
+  <p><strong th:text="${candidateName}">Asha Rao</strong><span th:if="${employeeCode}">
+    (<span th:text="${employeeCode}">EHR-1</span>)</span> has not yet sent the documents HR asked for:</p>
+  <p style="white-space:pre-line;background:#f6f5fa;border-radius:8px;padding:12px;" th:text="${documentIssues}">PAN blurred</p>
+  <p>Please follow up with the employee so their records and statutory compliance can be completed on time.</p>
+</div>
+</html>

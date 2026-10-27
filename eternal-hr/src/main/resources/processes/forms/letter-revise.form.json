@@ -1,0 +1,97 @@
+{
+  "name": "Revise appointment letter",
+  "schema": {
+    "title": "Revise appointment letter",
+    "description": "Correct the letter only after the project manager's written approval of the changes.",
+    "type": "object",
+    "required": [
+      "designation",
+      "proposedAnnualCtc",
+      "proposedJoiningDate",
+      "workLocation",
+      "letterReference",
+      "pmWrittenApproval"
+    ],
+    "properties": {
+      "letterChanges": {
+        "type": "string",
+        "title": "Changes asked for by the project manager",
+        "readOnly": true
+      },
+      "employeeCode": {
+        "type": "string",
+        "title": "Employee code (HRMS)",
+        "readOnly": true
+      },
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "minLength": 2,
+        "maxLength": 100
+      },
+      "proposedAnnualCtc": {
+        "type": "number",
+        "title": "Annual CTC (INR)",
+        "minimum": 0
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Date of joining"
+      },
+      "workLocation": {
+        "type": "string",
+        "title": "Work location",
+        "maxLength": 100
+      },
+      "letterReference": {
+        "type": "string",
+        "title": "Appointment letter",
+        "minLength": 3,
+        "maxLength": 500,
+        "description": "Link to the letter in the document system, or its reference number."
+      },
+      "pmWrittenApproval": {
+        "type": "boolean",
+        "title": "I have the project manager's written approval for these changes",
+        "const": true
+      },
+      "letterNotes": {
+        "type": "string",
+        "title": "Notes for the project manager",
+        "maxLength": 1000
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:order": [
+      "letterChanges",
+      "employeeCode",
+      "candidateName",
+      "designation",
+      "proposedAnnualCtc",
+      "proposedJoiningDate",
+      "workLocation",
+      "letterReference",
+      "pmWrittenApproval",
+      "letterNotes"
+    ],
+    "letterReference": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    },
+    "letterNotes": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

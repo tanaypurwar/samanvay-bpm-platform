@@ -1,0 +1,143 @@
+{
+  "name": "Start joining formalities",
+  "schema": {
+    "title": "Start joining formalities",
+    "description": "The joining is approved. Confirm the details; the employee then gets the joining form link by email.",
+    "type": "object",
+    "required": [
+      "candidateEmail",
+      "proposedJoiningDate",
+      "approvalReceived",
+      "supportingDocsReceived"
+    ],
+    "properties": {
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "readOnly": true
+      },
+      "department": {
+        "type": "string",
+        "title": "Department",
+        "enum": [
+          "Sales",
+          "Operations",
+          "Engineering",
+          "Finance",
+          "Human Resources",
+          "Customer Support",
+          "Other"
+        ],
+        "readOnly": true
+      },
+      "projectName": {
+        "type": "string",
+        "title": "Project / client",
+        "readOnly": true
+      },
+      "workLocation": {
+        "type": "string",
+        "title": "Work location",
+        "readOnly": true
+      },
+      "employmentType": {
+        "type": "string",
+        "title": "Employment type",
+        "oneOf": [
+          {
+            "const": "permanent",
+            "title": "Permanent"
+          },
+          {
+            "const": "contract",
+            "title": "Contract"
+          },
+          {
+            "const": "intern",
+            "title": "Intern"
+          }
+        ],
+        "readOnly": true
+      },
+      "proposedAnnualCtc": {
+        "type": "number",
+        "title": "Proposed annual CTC (INR)",
+        "readOnly": true
+      },
+      "initiatorName": {
+        "type": "string",
+        "title": "Raised by",
+        "readOnly": true
+      },
+      "candidateEmail": {
+        "type": "string",
+        "format": "email",
+        "title": "Candidate personal email",
+        "description": "The joining form link is sent here."
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Proposed date of joining"
+      },
+      "approvalReceived": {
+        "type": "boolean",
+        "title": "Approved joining confirmation received",
+        "const": true
+      },
+      "supportingDocsReceived": {
+        "type": "boolean",
+        "title": "Employee details and supporting documents received from the PM?",
+        "oneOf": [
+          {
+            "const": true,
+            "title": "Yes"
+          },
+          {
+            "const": false,
+            "title": "No"
+          }
+        ]
+      },
+      "hrNotes": {
+        "type": "string",
+        "title": "Notes",
+        "maxLength": 1000
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:order": [
+      "candidateName",
+      "designation",
+      "department",
+      "projectName",
+      "workLocation",
+      "employmentType",
+      "proposedAnnualCtc",
+      "initiatorName",
+      "candidateEmail",
+      "proposedJoiningDate",
+      "approvalReceived",
+      "supportingDocsReceived",
+      "hrNotes"
+    ],
+    "supportingDocsReceived": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "hrNotes": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

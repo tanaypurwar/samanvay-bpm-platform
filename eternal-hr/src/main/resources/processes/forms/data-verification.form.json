@@ -1,0 +1,203 @@
+{
+  "name": "Correct and verify employee data",
+  "schema": {
+    "title": "Correct and verify employee data",
+    "description": "Compare the employee's details with the documents, correct any mismatch, recheck and verify.",
+    "type": "object",
+    "required": [
+      "candidateName",
+      "dateOfBirth",
+      "panNumber",
+      "dataCompared",
+      "dataRechecked",
+      "recordVerified"
+    ],
+    "properties": {
+      "employeeCode": {
+        "type": "string",
+        "title": "Employee code (HRMS)",
+        "readOnly": true
+      },
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "minLength": 2,
+        "maxLength": 100
+      },
+      "dateOfBirth": {
+        "type": "string",
+        "format": "date",
+        "title": "Date of birth"
+      },
+      "gender": {
+        "type": "string",
+        "title": "Gender",
+        "oneOf": [
+          {
+            "const": "female",
+            "title": "Female"
+          },
+          {
+            "const": "male",
+            "title": "Male"
+          },
+          {
+            "const": "other",
+            "title": "Other"
+          },
+          {
+            "const": "undisclosed",
+            "title": "Prefer not to say"
+          }
+        ]
+      },
+      "fatherOrSpouseName": {
+        "type": "string",
+        "title": "Father's / spouse's name",
+        "maxLength": 100
+      },
+      "candidateMobile": {
+        "type": "string",
+        "title": "Candidate mobile",
+        "pattern": "^[6-9][0-9]{9}$",
+        "description": "10-digit Indian mobile number"
+      },
+      "candidateEmail": {
+        "type": "string",
+        "format": "email",
+        "title": "Candidate personal email",
+        "description": "The joining form link is sent here."
+      },
+      "currentAddress": {
+        "type": "string",
+        "title": "Current address",
+        "maxLength": 500
+      },
+      "permanentAddress": {
+        "type": "string",
+        "title": "Permanent address",
+        "maxLength": 500
+      },
+      "emergencyContactName": {
+        "type": "string",
+        "title": "Emergency contact name",
+        "maxLength": 100
+      },
+      "emergencyContactPhone": {
+        "type": "string",
+        "title": "Emergency contact phone",
+        "pattern": "^[0-9+ -]{8,15}$"
+      },
+      "panNumber": {
+        "type": "string",
+        "title": "PAN",
+        "pattern": "^[A-Z]{5}[0-9]{4}[A-Z]$"
+      },
+      "aadhaarLast4": {
+        "type": "string",
+        "title": "Aadhaar (last 4 digits)",
+        "pattern": "^[0-9]{4}$"
+      },
+      "bankName": {
+        "type": "string",
+        "title": "Bank name",
+        "maxLength": 100
+      },
+      "bankIfsc": {
+        "type": "string",
+        "title": "IFSC",
+        "pattern": "^[A-Z]{4}0[A-Z0-9]{6}$"
+      },
+      "bankAccountLast4": {
+        "type": "string",
+        "title": "Bank account (last 4 digits)",
+        "pattern": "^[0-9]{4}$"
+      },
+      "highestQualification": {
+        "type": "string",
+        "title": "Highest qualification",
+        "maxLength": 100
+      },
+      "previousEmployer": {
+        "type": "string",
+        "title": "Previous employer",
+        "maxLength": 100
+      },
+      "totalExperienceYears": {
+        "type": "number",
+        "title": "Total experience (years)",
+        "minimum": 0,
+        "maximum": 60
+      },
+      "dataCompared": {
+        "type": "boolean",
+        "title": "I compared the employee data with the documents",
+        "const": true
+      },
+      "correctionsMade": {
+        "type": "string",
+        "title": "Corrections made",
+        "maxLength": 1000,
+        "description": "Leave empty if nothing changed."
+      },
+      "dataRechecked": {
+        "type": "boolean",
+        "title": "I rechecked the updated information",
+        "const": true
+      },
+      "recordVerified": {
+        "type": "boolean",
+        "title": "The employee record is correct and verified",
+        "const": true
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:order": [
+      "employeeCode",
+      "candidateName",
+      "dateOfBirth",
+      "gender",
+      "fatherOrSpouseName",
+      "candidateMobile",
+      "candidateEmail",
+      "currentAddress",
+      "permanentAddress",
+      "emergencyContactName",
+      "emergencyContactPhone",
+      "panNumber",
+      "aadhaarLast4",
+      "bankName",
+      "bankIfsc",
+      "bankAccountLast4",
+      "highestQualification",
+      "previousEmployer",
+      "totalExperienceYears",
+      "dataCompared",
+      "correctionsMade",
+      "dataRechecked",
+      "recordVerified"
+    ],
+    "gender": {
+      "ui:widget": "radio"
+    },
+    "currentAddress": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    },
+    "permanentAddress": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    },
+    "correctionsMade": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

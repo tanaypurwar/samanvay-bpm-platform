@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(heading, content)" lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f6f5fa;font-family:'Segoe UI',Roboto,Arial,sans-serif;color:#1d1b26;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f5fa;padding:24px 12px;">
+  <tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+           style="max-width:600px;background:#ffffff;border:1px solid #dcd8e6;border-radius:12px;overflow:hidden;">
+      <tr><td style="background:#4527a0;color:#ffffff;padding:16px 24px;font-size:18px;font-weight:700;">
+        Eternal HR <span style="font-weight:400;opacity:.85;">Onboarding</span></td></tr>
+      <tr><td style="padding:24px;font-size:15px;line-height:1.55;">
+        <h1 style="font-size:20px;margin:0 0 12px;" th:text="${heading}">Heading</h1>
+        <div th:replace="${content}">Content</div>
+      </td></tr>
+      <tr><td style="padding:14px 24px;border-top:1px solid #ece9f3;color:#6b6780;font-size:12px;">
+        This is an automated message from Eternal HR onboarding.</td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

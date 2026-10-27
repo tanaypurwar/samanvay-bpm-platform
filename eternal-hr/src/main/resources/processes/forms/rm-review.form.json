@@ -1,0 +1,175 @@
+{
+  "name": "Review joining request",
+  "schema": {
+    "title": "Review joining request",
+    "description": "Check the request and forward it to the country head, send it back for changes, or reject it.",
+    "type": "object",
+    "required": [
+      "rmDecision"
+    ],
+    "properties": {
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "candidateEmail": {
+        "type": "string",
+        "title": "Candidate personal email",
+        "readOnly": true
+      },
+      "candidateMobile": {
+        "type": "string",
+        "title": "Candidate mobile",
+        "readOnly": true
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "readOnly": true
+      },
+      "department": {
+        "type": "string",
+        "title": "Department",
+        "enum": [
+          "Sales",
+          "Operations",
+          "Engineering",
+          "Finance",
+          "Human Resources",
+          "Customer Support",
+          "Other"
+        ],
+        "readOnly": true
+      },
+      "projectName": {
+        "type": "string",
+        "title": "Project / client",
+        "readOnly": true
+      },
+      "workLocation": {
+        "type": "string",
+        "title": "Work location",
+        "readOnly": true
+      },
+      "employmentType": {
+        "type": "string",
+        "title": "Employment type",
+        "oneOf": [
+          {
+            "const": "permanent",
+            "title": "Permanent"
+          },
+          {
+            "const": "contract",
+            "title": "Contract"
+          },
+          {
+            "const": "intern",
+            "title": "Intern"
+          }
+        ],
+        "readOnly": true
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Proposed date of joining",
+        "readOnly": true
+      },
+      "proposedAnnualCtc": {
+        "type": "number",
+        "title": "Proposed annual CTC (INR)",
+        "readOnly": true
+      },
+      "requestRemarks": {
+        "type": "string",
+        "title": "Remarks",
+        "readOnly": true
+      },
+      "initiatorName": {
+        "type": "string",
+        "title": "Raised by",
+        "readOnly": true
+      },
+      "rmDecision": {
+        "type": "string",
+        "title": "Your decision",
+        "oneOf": [
+          {
+            "const": "forward",
+            "title": "Forward to country head"
+          },
+          {
+            "const": "sendBack",
+            "title": "Send back to territory manager for changes"
+          },
+          {
+            "const": "reject",
+            "title": "Reject"
+          }
+        ]
+      },
+      "rmComments": {
+        "type": "string",
+        "title": "Comments",
+        "maxLength": 1000,
+        "description": "Required when sending back or rejecting."
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "rmDecision": {
+              "enum": [
+                "sendBack",
+                "reject"
+              ]
+            }
+          },
+          "required": [
+            "rmDecision"
+          ]
+        },
+        "then": {
+          "required": [
+            "rmComments"
+          ],
+          "properties": {
+            "rmComments": {
+              "minLength": 5
+            }
+          }
+        }
+      }
+    ]
+  },
+  "uiSchema": {
+    "ui:order": [
+      "candidateName",
+      "candidateEmail",
+      "candidateMobile",
+      "designation",
+      "department",
+      "projectName",
+      "workLocation",
+      "employmentType",
+      "proposedJoiningDate",
+      "proposedAnnualCtc",
+      "requestRemarks",
+      "initiatorName",
+      "rmDecision",
+      "rmComments"
+    ],
+    "rmDecision": {
+      "ui:widget": "radio"
+    },
+    "rmComments": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+# Eternal HR next to a running Samanvay platform stack (deploy/aws-demo), on its "samanvay" network.
+#   eternal-hr  external task workers, process + form deployment, public joining form (/joining/)
+#   mailpit     catches every email the demo sends; web UI at /mail/ (login from .env)
+# Public routes are added to the platform's Caddy by eternal-hr.caddy. Settings come from .env.
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  eternal-hr:
+    build: .
+    image: eternal-hr/app:demo
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      ETERNAL_HR_ENGINE_URL: http://engine:8080/engine-rest
+      ETERNAL_HR_ENGINE_USERNAME: ${ENGINE_USERNAME:?set in .env}
+      ETERNAL_HR_ENGINE_PASSWORD: ${ENGINE_PASSWORD:?set in .env}
+      ETERNAL_HR_PUBLIC_URL: ${PUBLIC_URL:?set in .env}
+      ETERNAL_HR_TASKLIST_URL: ${PUBLIC_URL}
+      ETERNAL_HR_LINK_SECRET: ${LINK_SECRET:?set in .env}
+      ETERNAL_HR_SMTP_HOST: mailpit
+      ETERNAL_HR_SMTP_PORT: "1025"
+      ETERNAL_HR_DEMO_USERS: ${DEMO_USERS:-true}
+      ETERNAL_HR_DEMO_PASSWORD: ${DEMO_PASSWORD:-}
+      # documents attached to the joining form go to the platform's bucket; off while DOCUMENTS_BUCKET is empty
+      ETERNAL_HR_DOCUMENTS_BUCKET: ${DOCUMENTS_BUCKET:-}
+      ETERNAL_HR_DOCUMENTS_REGION: ${DOCUMENTS_REGION:-ap-south-1}
+      ETERNAL_HR_DOCUMENTS_ENDPOINT: ${DOCUMENTS_ENDPOINT:-}
+      ETERNAL_HR_DOCUMENTS_ACCESS_KEY: ${DOCUMENTS_ACCESS_KEY:-}
+      ETERNAL_HR_DOCUMENTS_SECRET_KEY: ${DOCUMENTS_SECRET_KEY:-}
+      ETERNAL_HR_DOCUMENTS_CREATE_BUCKET: ${DOCUMENTS_CREATE_BUCKET:-false}
+      # demo timings so reminders and escalations show up within minutes
+      ETERNAL_HR_FORM_REMINDER_CYCLE: ${FORM_REMINDER_CYCLE:-R3/PT10M}
+      ETERNAL_HR_DOCUMENT_ESCALATION_AFTER: ${DOCUMENT_ESCALATION_AFTER:-PT15M}
+      SERVER_TOMCAT_THREADS_MAX: "30"
+      JAVA_TOOL_OPTIONS: >-
+        -Xms64m -Xmx160m -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=40m
+        -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8090/actuator/health >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 90s
+
+  mailpit:
+    image: axllent/mailpit:v1.21.8
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      MP_WEBROOT: /mail/
+      MP_UI_AUTH: "mail:${MAILPIT_PASSWORD:?set in .env}"
+      MP_MAX_MESSAGES: "1000"
+      MP_DATABASE: /data/mailpit.db
+    volumes:
+      - mailpit-data:/data
+
+networks:
+  default:
+    name: samanvay
+    external: true
+
+volumes:
+  mailpit-data:

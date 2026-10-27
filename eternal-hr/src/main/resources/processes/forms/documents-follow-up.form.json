@@ -1,0 +1,61 @@
+{
+  "name": "Follow up on documents",
+  "schema": {
+    "title": "Follow up on documents",
+    "description": "The employee was asked for corrected documents. If they don't respond in time, the project manager is emailed automatically.",
+    "type": "object",
+    "required": [
+      "followUpNotes",
+      "correctedDocumentsReceived"
+    ],
+    "properties": {
+      "documentIssues": {
+        "type": "string",
+        "title": "Issues sent to the employee",
+        "readOnly": true
+      },
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "candidateEmail": {
+        "type": "string",
+        "title": "Candidate personal email",
+        "readOnly": true
+      },
+      "candidateMobile": {
+        "type": "string",
+        "title": "Candidate mobile",
+        "readOnly": true
+      },
+      "followUpNotes": {
+        "type": "string",
+        "title": "Follow-up notes",
+        "maxLength": 1000,
+        "description": "What was requested, and the employee's response."
+      },
+      "correctedDocumentsReceived": {
+        "type": "boolean",
+        "title": "Corrected documents received and moved to the HRMS",
+        "const": true
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:order": [
+      "documentIssues",
+      "candidateName",
+      "candidateEmail",
+      "candidateMobile",
+      "followUpNotes",
+      "correctedDocumentsReceived"
+    ],
+    "followUpNotes": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

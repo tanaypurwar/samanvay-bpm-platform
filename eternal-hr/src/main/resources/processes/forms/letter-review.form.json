@@ -1,0 +1,121 @@
+{
+  "name": "Review appointment letter",
+  "schema": {
+    "title": "Review appointment letter",
+    "description": "Check the letter. Once approved, it is emailed to the employee before the joining date.",
+    "type": "object",
+    "required": [
+      "letterDecision"
+    ],
+    "properties": {
+      "employeeCode": {
+        "type": "string",
+        "title": "Employee code (HRMS)",
+        "readOnly": true
+      },
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "readOnly": true
+      },
+      "proposedAnnualCtc": {
+        "type": "number",
+        "title": "Annual CTC (INR)",
+        "readOnly": true
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Date of joining",
+        "readOnly": true
+      },
+      "workLocation": {
+        "type": "string",
+        "title": "Work location",
+        "readOnly": true
+      },
+      "letterReference": {
+        "type": "string",
+        "title": "Appointment letter",
+        "readOnly": true
+      },
+      "letterNotes": {
+        "type": "string",
+        "title": "Notes from HR",
+        "readOnly": true
+      },
+      "letterDecision": {
+        "type": "string",
+        "title": "Your decision",
+        "oneOf": [
+          {
+            "const": "approve",
+            "title": "Approve the letter"
+          },
+          {
+            "const": "changes",
+            "title": "Changes needed"
+          }
+        ]
+      },
+      "letterChanges": {
+        "type": "string",
+        "title": "What should change?",
+        "maxLength": 1000,
+        "description": "For example a changed date of joining or revised salary."
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "letterDecision": {
+              "const": "changes"
+            }
+          },
+          "required": [
+            "letterDecision"
+          ]
+        },
+        "then": {
+          "required": [
+            "letterChanges"
+          ],
+          "properties": {
+            "letterChanges": {
+              "minLength": 5
+            }
+          }
+        }
+      }
+    ]
+  },
+  "uiSchema": {
+    "ui:order": [
+      "employeeCode",
+      "candidateName",
+      "designation",
+      "proposedAnnualCtc",
+      "proposedJoiningDate",
+      "workLocation",
+      "letterReference",
+      "letterNotes",
+      "letterDecision",
+      "letterChanges"
+    ],
+    "letterDecision": {
+      "ui:widget": "radio"
+    },
+    "letterChanges": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

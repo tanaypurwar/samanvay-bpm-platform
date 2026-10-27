@@ -1,0 +1,412 @@
+{
+  "name": "Review documents",
+  "schema": {
+    "title": "Review documents",
+    "description": "Check each document is clear and complete, and that it matches the employee's details.",
+    "type": "object",
+    "required": [
+      "documentsClear",
+      "documentsMatchData"
+    ],
+    "properties": {
+      "employeeCode": {
+        "type": "string",
+        "title": "Employee code (HRMS)",
+        "readOnly": true
+      },
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "dateOfBirth": {
+        "type": "string",
+        "format": "date",
+        "title": "Date of birth",
+        "readOnly": true
+      },
+      "gender": {
+        "type": "string",
+        "title": "Gender",
+        "oneOf": [
+          {
+            "const": "female",
+            "title": "Female"
+          },
+          {
+            "const": "male",
+            "title": "Male"
+          },
+          {
+            "const": "other",
+            "title": "Other"
+          },
+          {
+            "const": "undisclosed",
+            "title": "Prefer not to say"
+          }
+        ],
+        "readOnly": true
+      },
+      "fatherOrSpouseName": {
+        "type": "string",
+        "title": "Father's / spouse's name",
+        "readOnly": true
+      },
+      "candidateMobile": {
+        "type": "string",
+        "title": "Candidate mobile",
+        "readOnly": true
+      },
+      "candidateEmail": {
+        "type": "string",
+        "title": "Candidate personal email",
+        "readOnly": true
+      },
+      "currentAddress": {
+        "type": "string",
+        "title": "Current address",
+        "readOnly": true
+      },
+      "permanentAddress": {
+        "type": "string",
+        "title": "Permanent address",
+        "readOnly": true
+      },
+      "emergencyContactName": {
+        "type": "string",
+        "title": "Emergency contact name",
+        "readOnly": true
+      },
+      "emergencyContactPhone": {
+        "type": "string",
+        "title": "Emergency contact phone",
+        "readOnly": true
+      },
+      "panNumber": {
+        "type": "string",
+        "title": "PAN",
+        "readOnly": true
+      },
+      "aadhaarLast4": {
+        "type": "string",
+        "title": "Aadhaar (last 4 digits)",
+        "readOnly": true
+      },
+      "bankName": {
+        "type": "string",
+        "title": "Bank name",
+        "readOnly": true
+      },
+      "bankIfsc": {
+        "type": "string",
+        "title": "IFSC",
+        "readOnly": true
+      },
+      "bankAccountLast4": {
+        "type": "string",
+        "title": "Bank account (last 4 digits)",
+        "readOnly": true
+      },
+      "highestQualification": {
+        "type": "string",
+        "title": "Highest qualification",
+        "readOnly": true
+      },
+      "previousEmployer": {
+        "type": "string",
+        "title": "Previous employer",
+        "readOnly": true
+      },
+      "totalExperienceYears": {
+        "type": "number",
+        "title": "Total experience (years)",
+        "readOnly": true
+      },
+      "docAadhaar": {
+        "type": "string",
+        "title": "Aadhaar card (both sides)",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ],
+        "readOnly": true
+      },
+      "docPan": {
+        "type": "string",
+        "title": "PAN card",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ],
+        "readOnly": true
+      },
+      "docPifKit": {
+        "type": "string",
+        "title": "PIF kit",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ],
+        "readOnly": true
+      },
+      "docEducation": {
+        "type": "string",
+        "title": "Education certificates",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ],
+        "readOnly": true
+      },
+      "docCv": {
+        "type": "string",
+        "title": "CV / resume",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ],
+        "readOnly": true
+      },
+      "docBankProof": {
+        "type": "string",
+        "title": "Bank account proof (for salary)",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ],
+        "readOnly": true
+      },
+      "docPreviousEmployment": {
+        "type": "string",
+        "title": "Previous employment certificate(s)",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ],
+        "readOnly": true
+      },
+      "docPhoto": {
+        "type": "string",
+        "title": "Passport-size photograph",
+        "oneOf": [
+          {
+            "const": "received",
+            "title": "Received, moved to HRMS"
+          },
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "notApplicable",
+            "title": "Not applicable"
+          }
+        ],
+        "readOnly": true
+      },
+      "documentsClear": {
+        "type": "boolean",
+        "title": "Are all documents clear, readable, printable and complete?",
+        "oneOf": [
+          {
+            "const": true,
+            "title": "Yes"
+          },
+          {
+            "const": false,
+            "title": "No"
+          }
+        ]
+      },
+      "documentsMatchData": {
+        "type": "boolean",
+        "title": "Do the documents match the employee's submitted details?",
+        "oneOf": [
+          {
+            "const": true,
+            "title": "Yes"
+          },
+          {
+            "const": false,
+            "title": "No"
+          }
+        ]
+      },
+      "documentIssues": {
+        "type": "string",
+        "title": "Issues found",
+        "maxLength": 1000,
+        "description": "Required if anything is unclear or does not match. The employee is emailed this."
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "documentsClear": {
+              "const": false
+            }
+          },
+          "required": [
+            "documentsClear"
+          ]
+        },
+        "then": {
+          "required": [
+            "documentIssues"
+          ],
+          "properties": {
+            "documentIssues": {
+              "minLength": 5
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "documentsMatchData": {
+              "const": false
+            }
+          },
+          "required": [
+            "documentsMatchData"
+          ]
+        },
+        "then": {
+          "required": [
+            "documentIssues"
+          ],
+          "properties": {
+            "documentIssues": {
+              "minLength": 5
+            }
+          }
+        }
+      }
+    ]
+  },
+  "uiSchema": {
+    "ui:order": [
+      "employeeCode",
+      "candidateName",
+      "dateOfBirth",
+      "gender",
+      "fatherOrSpouseName",
+      "candidateMobile",
+      "candidateEmail",
+      "currentAddress",
+      "permanentAddress",
+      "emergencyContactName",
+      "emergencyContactPhone",
+      "panNumber",
+      "aadhaarLast4",
+      "bankName",
+      "bankIfsc",
+      "bankAccountLast4",
+      "highestQualification",
+      "previousEmployer",
+      "totalExperienceYears",
+      "docAadhaar",
+      "docPan",
+      "docPifKit",
+      "docEducation",
+      "docCv",
+      "docBankProof",
+      "docPreviousEmployment",
+      "docPhoto",
+      "documentsClear",
+      "documentsMatchData",
+      "documentIssues"
+    ],
+    "documentsClear": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "documentsMatchData": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    },
+    "documentIssues": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

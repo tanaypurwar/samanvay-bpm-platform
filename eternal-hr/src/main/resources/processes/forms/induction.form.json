@@ -1,0 +1,86 @@
+{
+  "name": "Conduct induction",
+  "schema": {
+    "title": "Conduct induction",
+    "description": "Induction with the new joiner, their project manager and the HR team.",
+    "type": "object",
+    "required": [
+      "inductionDate",
+      "inductionAttendees"
+    ],
+    "properties": {
+      "employeeCode": {
+        "type": "string",
+        "title": "Employee code (HRMS)",
+        "readOnly": true
+      },
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "readOnly": true
+      },
+      "projectName": {
+        "type": "string",
+        "title": "Project / client",
+        "readOnly": true
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Proposed date of joining",
+        "readOnly": true
+      },
+      "inductionDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Induction date"
+      },
+      "inductionAttendees": {
+        "type": "array",
+        "title": "Who attended?",
+        "uniqueItems": true,
+        "minItems": 1,
+        "items": {
+          "type": "string",
+          "enum": [
+            "New joiner",
+            "Project manager",
+            "Reporting manager",
+            "HR team"
+          ]
+        }
+      },
+      "inductionNotes": {
+        "type": "string",
+        "title": "Notes",
+        "maxLength": 1000
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:order": [
+      "employeeCode",
+      "candidateName",
+      "designation",
+      "projectName",
+      "proposedJoiningDate",
+      "inductionDate",
+      "inductionAttendees",
+      "inductionNotes"
+    ],
+    "inductionNotes": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    },
+    "inductionAttendees": {
+      "ui:widget": "checkboxes"
+    }
+  }
+}

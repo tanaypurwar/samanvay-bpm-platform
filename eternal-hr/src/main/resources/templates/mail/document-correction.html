@@ -1,0 +1,9 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{mail/layout :: layout('Action needed: your documents', ~{::div.content})}">
+<div class="content">
+  <p>Dear <span th:text="${candidateName}">Asha</span>,</p>
+  <p>Thank you for sending your documents. While checking them, HR found the following:</p>
+  <p style="white-space:pre-line;background:#f6f5fa;border-radius:8px;padding:12px;" th:text="${documentIssues}">PAN blurred</p>
+  <p>Please reply to this email with clear, complete and correct copies so we can complete your records on time.</p>
+</div>
+</html>

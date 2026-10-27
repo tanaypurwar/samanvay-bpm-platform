@@ -1,0 +1,187 @@
+{
+  "name": "Approve joining (Project Manager)",
+  "schema": {
+    "title": "Approve joining",
+    "description": "Your approval sends the joining to HR with the country head's approval.",
+    "type": "object",
+    "required": [
+      "pmDecision"
+    ],
+    "properties": {
+      "candidateName": {
+        "type": "string",
+        "title": "Candidate full name",
+        "readOnly": true
+      },
+      "candidateEmail": {
+        "type": "string",
+        "title": "Candidate personal email",
+        "readOnly": true
+      },
+      "candidateMobile": {
+        "type": "string",
+        "title": "Candidate mobile",
+        "readOnly": true
+      },
+      "designation": {
+        "type": "string",
+        "title": "Designation",
+        "readOnly": true
+      },
+      "department": {
+        "type": "string",
+        "title": "Department",
+        "enum": [
+          "Sales",
+          "Operations",
+          "Engineering",
+          "Finance",
+          "Human Resources",
+          "Customer Support",
+          "Other"
+        ],
+        "readOnly": true
+      },
+      "projectName": {
+        "type": "string",
+        "title": "Project / client",
+        "readOnly": true
+      },
+      "workLocation": {
+        "type": "string",
+        "title": "Work location",
+        "readOnly": true
+      },
+      "employmentType": {
+        "type": "string",
+        "title": "Employment type",
+        "oneOf": [
+          {
+            "const": "permanent",
+            "title": "Permanent"
+          },
+          {
+            "const": "contract",
+            "title": "Contract"
+          },
+          {
+            "const": "intern",
+            "title": "Intern"
+          }
+        ],
+        "readOnly": true
+      },
+      "proposedJoiningDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Proposed date of joining",
+        "readOnly": true
+      },
+      "proposedAnnualCtc": {
+        "type": "number",
+        "title": "Proposed annual CTC (INR)",
+        "readOnly": true
+      },
+      "requestRemarks": {
+        "type": "string",
+        "title": "Remarks",
+        "readOnly": true
+      },
+      "initiatorName": {
+        "type": "string",
+        "title": "Raised by",
+        "readOnly": true
+      },
+      "rmComments": {
+        "type": "string",
+        "title": "Reporting manager's comments",
+        "readOnly": true
+      },
+      "chComments": {
+        "type": "string",
+        "title": "Country head's comments",
+        "readOnly": true
+      },
+      "pmDecision": {
+        "type": "string",
+        "title": "Your decision",
+        "oneOf": [
+          {
+            "const": "approve",
+            "title": "Approve joining"
+          },
+          {
+            "const": "sendBack",
+            "title": "Send back to territory manager for changes"
+          },
+          {
+            "const": "reject",
+            "title": "Reject"
+          }
+        ]
+      },
+      "pmComments": {
+        "type": "string",
+        "title": "Comments",
+        "maxLength": 1000,
+        "description": "Required when sending back or rejecting."
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "pmDecision": {
+              "enum": [
+                "sendBack",
+                "reject"
+              ]
+            }
+          },
+          "required": [
+            "pmDecision"
+          ]
+        },
+        "then": {
+          "required": [
+            "pmComments"
+          ],
+          "properties": {
+            "pmComments": {
+              "minLength": 5
+            }
+          }
+        }
+      }
+    ]
+  },
+  "uiSchema": {
+    "ui:order": [
+      "candidateName",
+      "candidateEmail",
+      "candidateMobile",
+      "designation",
+      "department",
+      "projectName",
+      "workLocation",
+      "employmentType",
+      "proposedJoiningDate",
+      "proposedAnnualCtc",
+      "requestRemarks",
+      "initiatorName",
+      "rmComments",
+      "chComments",
+      "pmDecision",
+      "pmComments"
+    ],
+    "pmDecision": {
+      "ui:widget": "radio"
+    },
+    "pmComments": {
+      "ui:widget": "textarea",
+      "ui:options": {
+        "rows": 3
+      }
+    }
+  }
+}

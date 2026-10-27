@@ -1,0 +1,12 @@
+# Eternal HR routes, imported into the platform's Caddy site (copied to <platform>/apps/ on deploy).
+
+# public joining form for new employees (signed links only)
+handle /joining/* {
+	reverse_proxy eternal-hr:8090
+}
+
+# demo mailbox: every email the workflow sends (Mailpit, password protected)
+redir /mail /mail/ 302
+handle /mail/* {
+	reverse_proxy mailpit:8025
+}
