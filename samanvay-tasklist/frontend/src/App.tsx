@@ -4,6 +4,8 @@ import { AppShell } from './components/AppShell';
 import { FormEditorPage } from './pages/admin/FormEditorPage';
 import { FormListPage } from './pages/admin/FormListPage';
 import { LoginPage } from './pages/LoginPage';
+import { StartFormPage } from './pages/StartFormPage';
+import { StartProcessPage } from './pages/StartProcessPage';
 import { TaskDetailPage } from './pages/TaskDetailPage';
 import { TaskInboxPage } from './pages/TaskInboxPage';
 
@@ -20,6 +22,8 @@ export function App() {
       >
         <Route index element={<TaskInboxPage />} />
         <Route path="tasks/:id" element={<TaskDetailPage />} />
+        <Route path="start" element={<StartProcessPage />} />
+        <Route path="start/:key" element={<StartFormPage />} />
         <Route
           path="admin/forms"
           element={

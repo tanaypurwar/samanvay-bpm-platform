@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samanvay.tasklist.engine.dto.AuthenticationResultDto;
 import com.samanvay.tasklist.engine.dto.CountDto;
+import com.samanvay.tasklist.engine.dto.DeploymentResourceDto;
 import com.samanvay.tasklist.engine.dto.FormInfoDto;
 import com.samanvay.tasklist.engine.dto.GroupInfoDto;
 import com.samanvay.tasklist.engine.dto.ProcessDefinitionDto;
+import com.samanvay.tasklist.engine.dto.ProcessInstanceDto;
 import com.samanvay.tasklist.engine.dto.TaskDto;
 import com.samanvay.tasklist.engine.dto.UserProfileDto;
 import com.samanvay.tasklist.engine.dto.VariableValueDto;
@@ -135,6 +137,58 @@ public class CamundaClient {
     return read(() -> rest.get().uri("/process-definition/{id}", processDefinitionId)
         .retrieve().onStatus(HttpStatusCode::isError, this::raise)
         .body(ProcessDefinitionDto.class));
+  }
+
+  /** Latest versions the user may start: candidate starter user or group, and startable in a tasklist. */
+  public List<ProcessDefinitionDto> getStartableProcessDefinitions(String userId) {
+    return read(() -> rest.get()
+        .uri(u -> u.path("/process-definition")
+            .queryParam("latestVersion", true)
+            .queryParam("active", true)
+            .queryParam("startableInTasklist", true)
+            .queryParam("startableBy", userId)
+            .queryParam("sortBy", "name").queryParam("sortOrder", "asc")
+            .build())
+        .retrieve().onStatus(HttpStatusCode::isError, this::raise)
+        .body(new ParameterizedTypeReference<List<ProcessDefinitionDto>>() { }));
+  }
+
+  public FormInfoDto getStartForm(String processDefinitionId) {
+    return read(() -> rest.get().uri("/process-definition/{id}/startForm", processDefinitionId)
+        .retrieve().onStatus(HttpStatusCode::isError, this::raise)
+        .body(FormInfoDto.class));
+  }
+
+  /** Starts an instance. Never retried, like {@link #complete}. */
+  public ProcessInstanceDto startProcess(String processDefinitionId, Map<String, VariableValueDto> variables) {
+    return write(() -> rest.post().uri("/process-definition/{id}/start", processDefinitionId)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(Map.of("variables", variables))
+        .retrieve().onStatus(HttpStatusCode::isError, this::raise)
+        .body(ProcessInstanceDto.class));
+  }
+
+  /** Removes an instance that must not go on (e.g. its start could not be completed). */
+  public void deleteProcessInstance(String processInstanceId) {
+    write(() -> rest.delete()
+        .uri(u -> u.path("/process-instance/{id}").queryParam("skipCustomListeners", true)
+            .queryParam("skipIoMappings", true).build(processInstanceId))
+        .retrieve().onStatus(HttpStatusCode::isError, this::raise)
+        .toBodilessEntity());
+  }
+
+  // deployments
+
+  public List<DeploymentResourceDto> getDeploymentResources(String deploymentId) {
+    return read(() -> rest.get().uri("/deployment/{id}/resources", deploymentId)
+        .retrieve().onStatus(HttpStatusCode::isError, this::raise)
+        .body(new ParameterizedTypeReference<List<DeploymentResourceDto>>() { }));
+  }
+
+  public byte[] getDeploymentResourceData(String deploymentId, String resourceId) {
+    return read(() -> rest.get().uri("/deployment/{id}/resources/{resourceId}/data", deploymentId, resourceId)
+        .retrieve().onStatus(HttpStatusCode::isError, this::raise)
+        .body(byte[].class));
   }
 
   // plumbing

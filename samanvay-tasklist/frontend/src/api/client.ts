@@ -33,13 +33,30 @@ export function readCookie(name: string): string | null {
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: unknown;
+  /** Multipart body (files); sent as is, the browser sets the content type. */
+  multipart?: globalThis.FormData;
   /** Don't trigger the global "session expired" handler on 401 (used by login and the initial session check). */
   silentUnauthorized?: boolean;
 }
 
 export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const response = await send(path, options, 'application/json');
+  if (response.status === 204) {
+    return undefined as T;
+  }
+  const text = await response.text();
+  return (text ? JSON.parse(text) : undefined) as T;
+}
+
+/** GETs a file, e.g. a document to preview. */
+export async function apiBlob(path: string): Promise<Blob> {
+  const response = await send(path, {}, '*/*');
+  return response.blob();
+}
+
+async function send(path: string, options: RequestOptions, accept: string): Promise<Response> {
   const method = options.method ?? 'GET';
-  const headers: Record<string, string> = { Accept: 'application/json' };
+  const headers: Record<string, string> = { Accept: accept };
   if (options.body !== undefined) {
     headers['Content-Type'] = 'application/json';
   }
@@ -56,7 +73,7 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
       method,
       headers,
       credentials: 'same-origin',
-      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      body: options.multipart ?? (options.body !== undefined ? JSON.stringify(options.body) : undefined),
     });
   } catch {
     throw new ApiError(0, 'NETWORK', 'Cannot reach the server. Check your connection and try again.');
@@ -81,12 +98,7 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
       data.correlationId,
     );
   }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-  const text = await response.text();
-  return (text ? JSON.parse(text) : undefined) as T;
+  return response;
 }
 
 export function errorMessage(error: unknown): string {

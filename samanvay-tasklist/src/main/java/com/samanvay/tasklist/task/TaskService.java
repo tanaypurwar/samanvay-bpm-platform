@@ -1,18 +1,15 @@
 package com.samanvay.tasklist.task;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samanvay.tasklist.auth.TasklistUser;
-import com.samanvay.tasklist.common.ApiError;
 import com.samanvay.tasklist.common.ApiException;
 import com.samanvay.tasklist.engine.CamundaClient;
 import com.samanvay.tasklist.engine.dto.TaskDto;
 import com.samanvay.tasklist.engine.dto.VariableValueDto;
 import com.samanvay.tasklist.form.FormResolver;
-import com.samanvay.tasklist.form.FormSchemaValidator;
+import com.samanvay.tasklist.form.FormSubmissions;
+import com.samanvay.tasklist.form.ResolvedForm;
 import com.samanvay.tasklist.form.VariableMapper;
-import com.samanvay.tasklist.form.entity.FormVersion;
 import com.samanvay.tasklist.form.repo.FormVersionRepository;
 import com.samanvay.tasklist.task.TaskDtos.CompleteTaskRequest;
 import com.samanvay.tasklist.task.TaskDtos.TaskForm;
@@ -22,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,20 +33,17 @@ public class TaskService {
   private final TaskAccessGuard guard;
   private final FormResolver formResolver;
   private final FormVersionRepository formVersions;
-  private final FormSchemaValidator validator;
+  private final FormSubmissions submissions;
   private final VariableMapper variableMapper;
-  private final ObjectMapper objectMapper;
 
   public TaskService(CamundaClient engine, TaskAccessGuard guard, FormResolver formResolver,
-      FormVersionRepository formVersions, FormSchemaValidator validator, VariableMapper variableMapper,
-      ObjectMapper objectMapper) {
+      FormVersionRepository formVersions, FormSubmissions submissions, VariableMapper variableMapper) {
     this.engine = engine;
     this.guard = guard;
     this.formResolver = formResolver;
     this.formVersions = formVersions;
-    this.validator = validator;
+    this.submissions = submissions;
     this.variableMapper = variableMapper;
-    this.objectMapper = objectMapper;
   }
 
   public TaskPage list(TasklistUser user, Scope scope, String search, String sortBy, String sortOrder, int page,
@@ -102,25 +95,21 @@ public class TaskService {
   public TaskForm form(String taskId, TasklistUser user) {
     TaskDto task = guard.requireVisible(taskId, user);
     Map<String, VariableValueDto> variables = engine.getTaskVariables(taskId);
-    Optional<FormVersion> resolved = formResolver.resolve(task);
+    Optional<ResolvedForm> resolved = formResolver.resolve(task);
     if (resolved.isEmpty()) {
       return new TaskForm(null, null, null, null, null, null, null, variableMapper.toDisplayValues(variables));
     }
-    FormVersion version = resolved.get();
-    JsonNode schema = read(version.getSchemaJson());
-    return new TaskForm(version.getId(), version.getFormDefinition().getFormKey(),
-        version.getFormDefinition().getName(), version.getVersion(), schema, read(version.getUiSchemaJson()),
-        variableMapper.toFormData(schema, variables), null);
+    ResolvedForm form = resolved.get();
+    JsonNode schema = submissions.read(form.schemaJson());
+    return new TaskForm(form.versionId(), form.formKey(), form.name(), form.version(), schema,
+        submissions.read(form.uiSchemaJson()), variableMapper.toFormData(schema, variables), null);
   }
 
   public void complete(String taskId, CompleteTaskRequest request, TasklistUser user) {
     TaskDto task = guard.requireAssignedTo(taskId, user);
-    JsonNode formData = request.formData() == null ? objectMapper.createObjectNode() : request.formData();
-    if (!formData.isObject()) {
-      throw ApiException.badRequest("BAD_REQUEST", "Form data must be a JSON object.");
-    }
+    JsonNode formData = submissions.objectOrEmpty(request.formData());
 
-    Optional<FormVersion> resolved = formResolver.resolve(task);
+    Optional<ResolvedForm> resolved = formResolver.resolve(task);
     if (resolved.isEmpty()) {
       if (!formData.isEmpty()) {
         throw ApiException.badRequest("NO_FORM", "This task has no form; it cannot accept form data.");
@@ -129,36 +118,23 @@ public class TaskService {
       return;
     }
 
-    FormVersion version = versionFor(resolved.get(), request.formVersionId());
-    List<ApiError.FieldError> errors = validator.validate(version.getSchemaJson(), formData);
-    if (!errors.isEmpty()) {
-      throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, "VALIDATION_FAILED",
-          "Please correct the highlighted fields.", errors);
-    }
-    engine.complete(taskId, variableMapper.toVariables(read(version.getSchemaJson()), formData));
+    ResolvedForm form = resolved.get().fromDeployment()
+        ? resolved.get()
+        : versionFor(resolved.get(), request.formVersionId());
+    engine.complete(taskId, submissions.toVariables(form, formData));
   }
 
   /**
    * The user may have opened the form before a newer version was published. Accept the version they filled
    * in as long as it belongs to the same form, so work in progress is not lost.
    */
-  private FormVersion versionFor(FormVersion current, Long requestedVersionId) {
-    if (requestedVersionId == null || requestedVersionId.equals(current.getId())) {
+  private ResolvedForm versionFor(ResolvedForm current, Long requestedVersionId) {
+    if (requestedVersionId == null || requestedVersionId.equals(current.versionId())) {
       return current;
     }
     return formVersions.findById(requestedVersionId)
-        .filter(v -> v.getFormDefinition().getId().equals(current.getFormDefinition().getId()))
+        .filter(v -> v.getFormDefinition().getFormKey().equals(current.formKey()))
+        .map(ResolvedForm::of)
         .orElseThrow(() -> ApiException.conflict("FORM_CHANGED", "The form for this task has changed. Reload it."));
-  }
-
-  private JsonNode read(String json) {
-    if (json == null) {
-      return null;
-    }
-    try {
-      return objectMapper.readTree(json);
-    } catch (JsonProcessingException e) {
-      throw new IllegalStateException("Stored form JSON is invalid", e);
-    }
   }
 }

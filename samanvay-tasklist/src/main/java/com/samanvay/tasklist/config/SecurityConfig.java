@@ -59,6 +59,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/branding").permitAll()
             .requestMatchers("/actuator/health").permitAll()
             .requestMatchers("/api/admin/**").hasAuthority(TasklistUser.ADMIN_AUTHORITY)
             .requestMatchers("/api/**", "/actuator/**").authenticated()

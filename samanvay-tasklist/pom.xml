@@ -26,7 +26,20 @@
     <version.frontend-maven-plugin>1.15.1</version.frontend-maven-plugin>
     <version.json-schema-validator>1.5.8</version.json-schema-validator>
     <skipFrontend>false</skipFrontend>
+    <version.aws-sdk>2.39.6</version.aws-sdk>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${version.aws-sdk}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -71,6 +84,25 @@
       <groupId>com.networknt</groupId>
       <artifactId>json-schema-validator</artifactId>
       <version>${version.json-schema-validator}</version>
+    </dependency>
+    <!-- process documents in S3 (or any S3-compatible store); the JDK HTTP client keeps the footprint small -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>software.amazon.awssdk</groupId>
+          <artifactId>netty-nio-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>software.amazon.awssdk</groupId>
+          <artifactId>apache-client</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>url-connection-client</artifactId>
     </dependency>
 
     <dependency>
