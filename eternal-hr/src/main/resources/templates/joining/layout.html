@@ -5,43 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <title th:text="${title} + ' · Eternal HR'">Eternal HR</title>
+  <link rel="icon" type="image/webp" th:href="@{/joining/assets/logo.webp}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
   <style>
+    /* colors from the Eternal HR logo: brand red, olive accent */
     :root {
-      --brand: #4527a0; --brand-dark: #311b92; --accent: #00897b;
-      --text: #1d1b26; --muted: #5f5b6e; --line: #dcd8e6; --bg: #f6f5fa; --card: #ffffff; --error: #c62828;
+      --brand: #9b211c; --brand-dark: #7a1915; --brand-soft: #fbeeed; --accent: #68692d;
+      --text: #0f172a; --muted: #475569; --line: #cbd5e1; --bg: #f8fafc; --card: #ffffff; --error: #b91c1c;
     }
     @media (prefers-color-scheme: dark) {
-      :root { --brand: #9f8be0; --brand-dark: #b9a9f0; --accent: #4db6ac;
-              --text: #ece9f5; --muted: #aaa5bd; --line: #3a3550; --bg: #15131d; --card: #1f1c2b; --error: #ef9a9a; }
+      :root { --brand: #f08b84; --brand-dark: #f6aca6; --brand-soft: #3a1513; --accent: #b9bb6c;
+              --text: #e2e8f0; --muted: #94a3b8; --line: #334155; --bg: #0b1120; --card: #131c2e; --error: #fca5a5; }
     }
     * { box-sizing: border-box; }
-    body { margin: 0; font: 16px/1.5 "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: var(--text); background: var(--bg); }
-    header { background: var(--brand); color: #fff; padding: 14px 16px; }
-    @media (prefers-color-scheme: dark) { header { background: #2a1f52; } }
-    header .brand { max-width: 760px; margin: 0 auto; font-weight: 700; font-size: 1.15rem; letter-spacing: .01em; }
-    header .brand span { font-weight: 400; opacity: .85; }
-    main { max-width: 760px; margin: 0 auto; padding: 20px 16px 48px; }
-    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    body { margin: 0; font: 16px/1.55 "Plus Jakarta Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    header { background: var(--card); border-top: 4px solid var(--brand); border-bottom: 1px solid var(--line); padding: 10px 16px; }
+    header .brand { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 12px;
+      font-weight: 700; font-size: 1.1rem; letter-spacing: -.01em; }
+    header .brand img { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; }
+    header .brand span { font-weight: 500; color: var(--muted); }
+    main { max-width: 760px; margin: 0 auto; padding: 28px 16px 56px; }
+    h1 { font-size: 1.6rem; line-height: 1.25; letter-spacing: -.02em; margin: 0 0 6px; }
     .lead { color: var(--muted); margin: 0 0 20px; }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-    .card h2 { font-size: 1.05rem; margin: 0 0 14px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px; margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .04); }
+    .card h2 { font-size: 1.05rem; margin: 0 0 16px; padding-left: 10px; border-left: 3px solid var(--brand); line-height: 1.3; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
     .grid .wide { grid-column: 1 / -1; }
     @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
     label { display: block; font-weight: 600; font-size: .92rem; margin-bottom: 4px; }
     .hint { font-weight: 400; color: var(--muted); }
     input, select, textarea { width: 100%; font: inherit; color: var(--text); background: var(--card);
-      border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+      border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-height: 44px;
+      transition: border-color .2s, box-shadow .2s; }
     textarea { min-height: 76px; resize: vertical; }
-    input:focus, select:focus, textarea:focus { outline: 2px solid var(--brand); outline-offset: 1px; border-color: transparent; }
+    input:hover, select:hover, textarea:hover { border-color: var(--muted); }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent); }
     .invalid input, .invalid select, .invalid textarea { border-color: var(--error); }
     .err { color: var(--error); font-size: .85rem; margin-top: 4px; }
     .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; }
     .check input { width: auto; margin-top: 4px; }
-    .alert { border: 1px solid var(--error); color: var(--error); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; }
+    .alert { border: 1px solid var(--error); color: var(--error); background: var(--brand-soft); border-radius: 8px;
+      padding: 10px 12px; margin-bottom: 16px; }
     button { font: inherit; font-weight: 600; color: #fff; background: var(--brand); border: 0; border-radius: 8px;
-      padding: 12px 22px; cursor: pointer; }
+      padding: 12px 24px; min-height: 44px; cursor: pointer; transition: background-color .2s; }
     button:hover { background: var(--brand-dark); }
+    button:focus-visible { outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent); outline-offset: 2px; }
+    @media (prefers-color-scheme: dark) { button, button:hover { color: #1a0605; } }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
     @media (max-width: 600px) { button { width: 100%; } }
     .actions { display: flex; justify-content: flex-end; }
     button.secondary { color: var(--brand); background: transparent; border: 1px solid var(--line); padding: 8px 14px; margin-top: 12px; }
@@ -53,9 +68,15 @@
     .badge { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
       background: var(--accent); color: #fff; font-size: 28px; margin-bottom: 12px; }
     .badge.neutral { background: var(--muted); }
+    @media (prefers-color-scheme: dark) { .badge { color: #0b1120; } }
   </style>
 </head>
 <body>
-<header th:fragment="header"><div class="brand">Eternal HR <span>Onboarding</span></div></header>
+<header th:fragment="header">
+  <div class="brand">
+    <img th:src="@{/joining/assets/logo.webp}" src="/joining/assets/logo.webp" alt="" width="44" height="44">
+    <div>Eternal HR <span>Onboarding</span></div>
+  </div>
+</header>
 </body>
 </html>

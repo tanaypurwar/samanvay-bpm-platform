@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Removes everything provision.sh created: DNS record, Elastic IP, instance (and its disk with all data),
-# security group and key pair. Irreversible.
+# security group, key pair, instance role and the documents bucket with all documents. Irreversible.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
@@ -31,5 +31,14 @@ ec2 terminate-instances --instance-ids "$INSTANCE_ID" >/dev/null
 ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
 ec2 delete-security-group --group-name "$NAME" 2>/dev/null || true
 ec2 delete-key-pair --key-name "$NAME"
+
+# instance role and the documents bucket with every stored document
+aws iam remove-role-from-instance-profile --instance-profile-name "$NAME" --role-name "$NAME" 2>/dev/null || true
+aws iam delete-instance-profile --instance-profile-name "$NAME" 2>/dev/null || true
+aws iam delete-role-policy --role-name "$NAME" --policy-name documents 2>/dev/null || true
+aws iam delete-role --role-name "$NAME" 2>/dev/null || true
+if [[ -n "${DOCUMENTS_BUCKET:-}" ]]; then
+  aws s3 rb "s3://$DOCUMENTS_BUCKET" --force >/dev/null 2>&1 && echo "    deleted bucket $DOCUMENTS_BUCKET" || true
+fi
 rm -f "$HERE/.state"
 echo "==> Removed. The local private key $KEY_FILE was kept; delete it yourself if no longer needed."

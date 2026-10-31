@@ -62,6 +62,7 @@ services:
       SAMANVAY_TASKLIST_BRANDING_PRODUCT: ${TASKLIST_BRAND_PRODUCT:-Tasklist}
       SAMANVAY_TASKLIST_BRANDING_PRIMARY_COLOR: ${TASKLIST_BRAND_PRIMARY_COLOR:-#1f4e79}
       SAMANVAY_TASKLIST_BRANDING_SECONDARY_COLOR: ${TASKLIST_BRAND_SECONDARY_COLOR:-#00796b}
+      SAMANVAY_TASKLIST_BRANDING_LOGO_URL: ${TASKLIST_BRAND_LOGO_URL:-}
       # process documents in S3; off while DOCUMENTS_BUCKET is empty. On AWS the instance role grants access;
       # locally deploy/local points this at an S3-compatible container with its own keys.
       SAMANVAY_DOCUMENTS_BUCKET: ${DOCUMENTS_BUCKET:-}

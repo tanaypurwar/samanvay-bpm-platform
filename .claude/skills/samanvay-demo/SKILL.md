@@ -13,7 +13,8 @@ directory in the Bash tool (Git Bash).
 | URL | https://dev-samanvay.ulesolutions.com (engine webapps under `/camunda/`) |
 | AWS region | `ap-south-1` (Mumbai); the account is whichever `aws login` signs into |
 | DNS | Route 53 public zone `ulesolutions.com`, same account |
-| Resources (all named/tagged `samanvay-demo`) | EC2 `t3.micro`, Elastic IP, security group, key pair, A record |
+| Resources (all named/tagged `samanvay-demo`) | EC2 `t3.micro`, Elastic IP, security group, key pair, A record, IAM role + instance profile, S3 bucket `samanvay-demo-documents-<account>` |
+| Documents | Uploaded files (tasklist and the Eternal HR joining form) go to that bucket through the instance role; no keys on the box |
 | SSH key | `~/.ssh/samanvay-demo.pem`, user `ubuntu` |
 | State file | `deploy/aws-demo/.state` (instance id, IP, key path); written by provision, needed by deploy/destroy |
 | Stack on the box | `~/samanvay`: Docker Compose with caddy, engine (Samanvay Run), tasklist; H2 databases on volumes |
@@ -55,10 +56,16 @@ echo dev-samanvay.ulesolutions.com | bash scripts/destroy.sh   # the script asks
 ```
 
 It deletes the DNS record, releases the Elastic IP, terminates the instance (all data and the `.env` passwords are
-lost), and deletes the security group and key pair. The local `.pem` is kept, and `provision.sh` overwrites it next time.
+lost), and deletes the security group, key pair, instance role and the documents bucket with every stored document.
+The local `.pem` is kept, and `provision.sh` overwrites it next time.
 
 If `.state` is missing, clean up by hand: look for the resources named or tagged `samanvay-demo` in `ap-south-1`
-(instance, Elastic IP, security group, key pair) and the `dev-samanvay` A record in the `ulesolutions.com` zone.
+(instance, Elastic IP, security group, key pair, IAM role and instance profile, documents bucket) and the
+`dev-samanvay` A record in the `ulesolutions.com` zone.
+
+If uploaded files don't show up: `DOCUMENTS_BUCKET` must be set in `~/samanvay/.env` and `~/eternal-hr/.env` (deploy
+scripts copy it from `.state`), the instance needs the `samanvay-demo` instance profile, and its metadata hop limit must
+be 2 so containers can reach the role's credentials. Re-running `provision.sh` fixes the last two.
 
 After a destroy and re-create, the server gets a **new IP and a new admin password**, and demo users and processes
 must be set up again. The example invoice process and its form are preloaded automatically.

@@ -428,7 +428,9 @@ All settings are environment variables mapped in `application.yml` to `EternalHr
 | `ETERNAL_HR_DOCUMENTS_*` | empty (off) | Document bucket, see section 7 |
 
 Tasklist branding is set on the **platform** (`TASKLIST_BRAND_NAME`, `_PRODUCT`, `_PRIMARY_COLOR`,
-`_SECONDARY_COLOR`). It is served publicly by `GET /api/branding` and applied before the UI renders.
+`_SECONDARY_COLOR`, `_LOGO_URL`). It is served publicly by `GET /api/branding` and applied before the UI renders.
+Eternal HR uses the colors of its logo (red `#9b211c`, olive `#68692d`). It serves the logo itself at
+`/joining/assets/logo.webp`, so the tasklist's app bar, login page and favicon and the joining form all use one file.
 
 ## 13. Deployment
 

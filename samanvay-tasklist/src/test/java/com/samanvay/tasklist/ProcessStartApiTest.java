@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.samanvay.tasklist.auth.TasklistUser;
+import com.samanvay.tasklist.config.TasklistProperties.Branding;
 import com.samanvay.tasklist.engine.CamundaClient;
 import com.samanvay.tasklist.engine.dto.DeploymentResourceDto;
 import com.samanvay.tasklist.engine.dto.FormInfoDto;
@@ -40,7 +41,8 @@ import org.springframework.test.web.servlet.MockMvc;
     "samanvay.tasklist.branding.name=Eternal HR",
     "samanvay.tasklist.branding.product=Onboarding",
     "samanvay.tasklist.branding.primary-color=#4527a0",
-    "samanvay.tasklist.branding.secondary-color=not-a-color"
+    "samanvay.tasklist.branding.secondary-color=not-a-color",
+    "samanvay.tasklist.branding.logo-url=/joining/assets/logo.webp"
 })
 @AutoConfigureMockMvc
 class ProcessStartApiTest {
@@ -73,7 +75,17 @@ class ProcessStartApiTest {
         .andExpect(jsonPath("$.name").value("Eternal HR"))
         .andExpect(jsonPath("$.product").value("Onboarding"))
         .andExpect(jsonPath("$.primaryColor").value("#4527a0"))
-        .andExpect(jsonPath("$.secondaryColor").value("#00796b"));
+        .andExpect(jsonPath("$.secondaryColor").value("#00796b"))
+        .andExpect(jsonPath("$.logoUrl").value("/joining/assets/logo.webp"));
+  }
+
+  @Test
+  void brandingIgnoresLogoUrlsThatAreNotSameSiteOrHttps() {
+    assertThat(new Branding(null, null, null, null, "javascript:alert(1)").logoUrl()).isNull();
+    assertThat(new Branding(null, null, null, null, "//evil.example/logo.png").logoUrl()).isNull();
+    assertThat(new Branding(null, null, null, null, "http://cdn.example/logo.png").logoUrl()).isNull();
+    assertThat(new Branding(null, null, null, null, " https://cdn.example/logo.png ").logoUrl())
+        .isEqualTo("https://cdn.example/logo.png");
   }
 
   @Test

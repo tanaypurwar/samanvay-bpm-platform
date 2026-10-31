@@ -46,7 +46,8 @@ samanvay:
   tasklist:
     # Camunda groups whose members may manage form configuration
     admin-groups: ${SAMANVAY_TASKLIST_ADMIN_GROUPS:camunda-admin,tasklist-admin}
-    # per-deployment branding (SAMANVAY_TASKLIST_BRANDING_NAME, _PRODUCT, _PRIMARY_COLOR, _SECONDARY_COLOR)
+    # per-deployment branding (SAMANVAY_TASKLIST_BRANDING_NAME, _PRODUCT, _PRIMARY_COLOR, _SECONDARY_COLOR,
+    # _LOGO_URL)
     branding:
       name: Samanvay
       product: Tasklist

@@ -28,6 +28,12 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (branding) {
       document.title = `${branding.name} ${branding.product}`;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', branding.primaryColor);
+      if (branding.logoUrl) {
+        const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+        icon?.removeAttribute('type');
+        icon?.setAttribute('href', branding.logoUrl);
+      }
     }
   }, [branding]);
 

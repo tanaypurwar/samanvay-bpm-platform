@@ -49,19 +49,27 @@ EOF
   echo "    generated ~/eternal-hr/.env"
 fi
 # employee documents go to the platform's document bucket (the instance role grants access); empty: uploads off
-if ! grep -q '^DOCUMENTS_BUCKET=' .env; then
-  echo "DOCUMENTS_BUCKET=$(get DOCUMENTS_BUCKET || true)" >> .env
-  echo "DOCUMENTS_REGION=$(get DOCUMENTS_REGION || true)" >> .env
-fi
+# (copied on every deploy, so a bucket added to the platform later is picked up)
+sed -i -e '/^DOCUMENTS_BUCKET=/d' -e '/^DOCUMENTS_REGION=/d' .env
+echo "DOCUMENTS_BUCKET=$(get DOCUMENTS_BUCKET || true)" >> .env
+echo "DOCUMENTS_REGION=$(get DOCUMENTS_REGION || true)" >> .env
 
-# brand the shared tasklist as Eternal HR (once), then apply it
+# brand the shared tasklist as Eternal HR (once), then apply it. The logo is served by this app at /joining/assets/.
+brand_before=$(grep '^TASKLIST_BRAND_' "$platform_env" || true)
 if ! grep -q '^TASKLIST_BRAND_NAME=' "$platform_env"; then
   cat >> "$platform_env" <<'EOF'
 TASKLIST_BRAND_NAME=Eternal HR
 TASKLIST_BRAND_PRODUCT=Onboarding
-TASKLIST_BRAND_PRIMARY_COLOR=#4527a0
-TASKLIST_BRAND_SECONDARY_COLOR=#00897b
+TASKLIST_BRAND_PRIMARY_COLOR=#9b211c
+TASKLIST_BRAND_SECONDARY_COLOR=#68692d
 EOF
+fi
+# servers branded before the logo: move from the old purple to the logo's colors and add the logo
+sed -i -e 's/^TASKLIST_BRAND_PRIMARY_COLOR=#4527a0$/TASKLIST_BRAND_PRIMARY_COLOR=#9b211c/' \
+  -e 's/^TASKLIST_BRAND_SECONDARY_COLOR=#00897b$/TASKLIST_BRAND_SECONDARY_COLOR=#68692d/' "$platform_env"
+grep -q '^TASKLIST_BRAND_LOGO_URL=' "$platform_env" ||
+  echo 'TASKLIST_BRAND_LOGO_URL=/joining/assets/logo.webp' >> "$platform_env"
+if [ "$brand_before" != "$(grep '^TASKLIST_BRAND_' "$platform_env")" ]; then
   (cd ~/samanvay && docker compose up -d tasklist)
   echo "    tasklist branded as Eternal HR"
 fi

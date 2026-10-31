@@ -37,9 +37,16 @@ if [[ "${BRAND:-eternal-hr}" == "eternal-hr" ]] && ! grep -q TASKLIST_BRAND_NAME
   cat >>"$HERE/.env" <<'EOF'
 TASKLIST_BRAND_NAME=Eternal HR
 TASKLIST_BRAND_PRODUCT=Onboarding
-TASKLIST_BRAND_PRIMARY_COLOR=#4527a0
-TASKLIST_BRAND_SECONDARY_COLOR=#00897b
+TASKLIST_BRAND_PRIMARY_COLOR=#9b211c
+TASKLIST_BRAND_SECONDARY_COLOR=#68692d
+TASKLIST_BRAND_LOGO_URL=/joining/assets/logo.webp
 EOF
+fi
+# .env files from before the logo: move from the old purple to the logo's colors and add the logo
+if grep -q '^TASKLIST_BRAND_PRIMARY_COLOR=#4527a0$' "$HERE/.env"; then
+  sed -i -e 's/^TASKLIST_BRAND_PRIMARY_COLOR=#4527a0$/TASKLIST_BRAND_PRIMARY_COLOR=#9b211c/' \
+    -e 's/^TASKLIST_BRAND_SECONDARY_COLOR=#00897b$/TASKLIST_BRAND_SECONDARY_COLOR=#68692d/' "$HERE/.env"
+  echo 'TASKLIST_BRAND_LOGO_URL=/joining/assets/logo.webp' >>"$HERE/.env"
 fi
 
 docker compose -p samanvay-local --env-file "$HERE/.env" \

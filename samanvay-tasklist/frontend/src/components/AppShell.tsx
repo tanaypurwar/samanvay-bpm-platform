@@ -23,6 +23,7 @@ import { NavLink, Outlet, useMatch, useNavigate } from 'react-router-dom';
 import { fetchStartableProcesses } from '../api/processes';
 import { useAuth } from '../auth/AuthContext';
 import { useBranding } from '../theme/BrandingContext';
+import { BrandMark } from './BrandMark';
 
 export function AppShell() {
   const { user, logout } = useAuth();
@@ -30,7 +31,10 @@ export function AppShell() {
   // the Start menu only appears for users who can start something
   const startable = useQuery({ queryKey: ['processes'], queryFn: fetchStartableProcesses, staleTime: 5 * 60_000 });
   const navigate = useNavigate();
-  const formPage = Boolean(useMatch('/tasks/:id')) || Boolean(useMatch('/start/:key'));
+  // call both hooks on every render: short-circuiting the second one changes the hook order and crashes React
+  const taskPage = useMatch('/tasks/:id');
+  const startFormPage = useMatch('/start/:key');
+  const formPage = Boolean(taskPage) || Boolean(startFormPage);
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const initials = (user?.firstName?.[0] ?? user?.id[0] ?? '?').toUpperCase() + (user?.lastName?.[0] ?? '').toUpperCase();
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.id;
@@ -40,9 +44,15 @@ export function AppShell() {
       component={NavLink}
       to={to}
       end={to === '/'}
-      color="inherit"
       startIcon={icon}
-      sx={{ opacity: 0.85, '&.active': { opacity: 1, bgcolor: 'rgba(255,255,255,0.14)' } }}
+      sx={{
+        color: 'text.secondary',
+        minHeight: 44,
+        px: { xs: 1, sm: 1.5 },
+        '& .MuiButton-startIcon': { mr: { xs: 0.5, sm: 1 } },
+        '&:hover': { color: 'text.primary', bgcolor: 'action.hover' },
+        '&.active': { color: 'primary.main', bgcolor: 'rgba(var(--mui-palette-primary-mainChannel) / 0.1)' },
+      }}
     >
       {label}
     </Button>
@@ -50,20 +60,44 @@ export function AppShell() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <AppBar position="sticky" elevation={0} color="primary" enableColorOnDark>
-        <Toolbar sx={{ gap: 1 }}>
-          <Typography
-            variant="h6"
+      <AppBar
+        position="sticky"
+        elevation={0}
+        color="inherit"
+        sx={{
+          bgcolor: 'background.paper',
+          borderBottom: 1,
+          borderColor: 'divider',
+          borderTop: '3px solid',
+          borderTopColor: 'primary.main',
+        }}
+      >
+        <Toolbar sx={{ gap: 1, minHeight: { xs: 60, sm: 68 } }}>
+          <Box
             component={NavLink}
             to="/"
-            sx={{ color: 'inherit', textDecoration: 'none', fontWeight: 700, mr: { xs: 'auto', sm: 3 } }}
+            aria-label={`${branding.name} ${branding.product}, home`}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.25,
+              color: 'text.primary',
+              textDecoration: 'none',
+              mr: { xs: 'auto', sm: 3 },
+            }}
           >
-            {branding.name}
-            <Box component="span" sx={{ fontWeight: 400, display: { xs: 'none', sm: 'inline' } }}>
-              {' '}
-              {branding.product}
-            </Box>
-          </Typography>
+            <BrandMark size={40} />
+            <Typography
+              component="span"
+              sx={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.01em', display: { xs: 'none', sm: 'inline' } }}
+            >
+              {branding.name}
+              <Box component="span" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+                {' '}
+                {branding.product}
+              </Box>
+            </Typography>
+          </Box>
           <Box sx={{ display: 'flex', gap: 0.5, flexGrow: { sm: 1 } }}>
             {navButton('/', 'Tasks', <AssignmentOutlinedIcon />)}
             {(startable.data?.length ?? 0) > 0 && navButton('/start', 'Start', <PlayCircleOutlineIcon />)}
@@ -71,7 +105,7 @@ export function AppShell() {
           </Box>
           <Tooltip title={fullName ?? ''}>
             <IconButton onClick={(e) => setAnchor(e.currentTarget)} aria-label="Account menu" sx={{ p: 0.5 }}>
-              <Avatar sx={{ width: 34, height: 34, bgcolor: 'secondary.main', fontSize: 15 }}>{initials}</Avatar>
+              <Avatar sx={{ width: 36, height: 36, bgcolor: 'secondary.main', fontSize: 15, fontWeight: 600 }}>{initials}</Avatar>
             </IconButton>
           </Tooltip>
           <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}>

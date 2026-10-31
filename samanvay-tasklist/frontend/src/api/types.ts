@@ -51,6 +51,8 @@ export interface Branding {
   product: string;
   primaryColor: string;
   secondaryColor: string;
+  /** Same-site path or https URL of the deployment's logo; absent when it has none. */
+  logoUrl?: string | null;
 }
 
 export interface StartableProcess {

@@ -21,6 +21,7 @@ Databases: embedded H2 files on Docker volumes (engine-data, tasklist-data); no 
 | Disk | 20 GiB gp3, encrypted | free tier covers 30 GiB |
 | OS | Ubuntu 24.04, Docker + Compose from apt | |
 | Address | Elastic IP + Route 53 A record | DNS stays valid across stop/start |
+| Documents | private, encrypted S3 bucket `samanvay-demo-documents-<account>`; an instance role may use only that bucket (metadata hop limit 2 so containers get its credentials) | no access keys on the box |
 | Builds | on your PC; only finished artifacts are copied | a 1 GiB box can't build Maven/npm projects |
 
 ## Prerequisites (on your PC)

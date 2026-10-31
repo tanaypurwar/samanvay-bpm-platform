@@ -4,6 +4,7 @@
 #   - security group: 80/443 from anywhere, 22 from this machine's public IP only
 #   - one free-tier EC2 instance (Ubuntu 24.04, 20 GiB gp3, CPU credits "standard" so it never bills for bursting)
 #   - Elastic IP, and a Route 53 A record <domain> -> that IP
+#   - private S3 bucket for process documents, and an instance role that may use only that bucket
 # Writes the result to ../.state for deploy.sh.
 set -euo pipefail
 export MSYS_NO_PATHCONV=1 # Git Bash on Windows: don't rewrite "/aws/service/..." into a Windows path
@@ -95,6 +96,56 @@ else
 fi
 ec2 wait instance-running --instance-ids "$instance_id"
 
+# --- documents bucket: private, encrypted, reachable only through the instance role
+account_id=$(awsr sts get-caller-identity --query Account --output text)
+DOCUMENTS_BUCKET="${DOCUMENTS_BUCKET:-$NAME-documents-$account_id}"
+if ! awsr s3api head-bucket --bucket "$DOCUMENTS_BUCKET" >/dev/null 2>&1; then
+  awsr --region "$REGION" s3api create-bucket --bucket "$DOCUMENTS_BUCKET" \
+    --create-bucket-configuration LocationConstraint="$REGION" >/dev/null
+  echo "    created bucket $DOCUMENTS_BUCKET"
+fi
+awsr s3api put-public-access-block --bucket "$DOCUMENTS_BUCKET" --public-access-block-configuration \
+  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+awsr s3api put-bucket-encryption --bucket "$DOCUMENTS_BUCKET" --server-side-encryption-configuration \
+  '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"},"BucketKeyEnabled":true}]}'
+awsr s3api put-bucket-tagging --bucket "$DOCUMENTS_BUCKET" --tagging "TagSet=[{Key=Name,Value=$NAME}]"
+
+# --- instance role: the apps on the box read and write documents in that bucket, nothing else
+if ! awsr iam get-role --role-name "$NAME" >/dev/null 2>&1; then
+  awsr iam create-role --role-name "$NAME" --description "Samanvay demo instance: documents bucket" \
+    --tags Key=Name,Value="$NAME" --assume-role-policy-document \
+    '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"ec2.amazonaws.com"},"Action":"sts:AssumeRole"}]}' \
+    >/dev/null
+  echo "    created role $NAME"
+fi
+awsr iam put-role-policy --role-name "$NAME" --policy-name documents --policy-document "{
+  \"Version\": \"2012-10-17\",
+  \"Statement\": [
+    {\"Effect\": \"Allow\", \"Action\": \"s3:ListBucket\", \"Resource\": \"arn:aws:s3:::$DOCUMENTS_BUCKET\"},
+    {\"Effect\": \"Allow\", \"Action\": [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"],
+     \"Resource\": \"arn:aws:s3:::$DOCUMENTS_BUCKET/*\"}
+  ]
+}"
+if ! awsr iam get-instance-profile --instance-profile-name "$NAME" >/dev/null 2>&1; then
+  awsr iam create-instance-profile --instance-profile-name "$NAME" >/dev/null
+  awsr iam add-role-to-instance-profile --instance-profile-name "$NAME" --role-name "$NAME"
+  sleep 10 # a new instance profile takes a moment before EC2 accepts it
+fi
+current_profile=$(ec2 describe-instances --instance-ids "$instance_id" \
+  --query 'Reservations[0].Instances[0].IamInstanceProfile.Arn' --output text)
+if none "$current_profile"; then
+  for i in 1 2 3 4 5 6; do
+    ec2 associate-iam-instance-profile --instance-id "$instance_id" --iam-instance-profile Name="$NAME" \
+      >/dev/null 2>&1 && break
+    [[ $i == 6 ]] && { echo "Could not attach instance profile $NAME." >&2; exit 1; }
+    sleep 10
+  done
+  echo "    attached role $NAME to $instance_id"
+fi
+# containers are one network hop further than the host; they need hop limit 2 to reach the role's credentials
+ec2 modify-instance-metadata-options --instance-id "$instance_id" \
+  --http-tokens required --http-endpoint enabled --http-put-response-hop-limit 2 >/dev/null
+
 # --- Elastic IP, so the DNS record survives stop/start
 alloc_id=$(ec2 describe-addresses --filters Name=tag:Name,Values="$NAME" --query 'Addresses[0].AllocationId' --output text)
 if none "$alloc_id"; then
@@ -126,5 +177,6 @@ DOMAIN=$DOMAIN
 INSTANCE_ID=$instance_id
 PUBLIC_IP=$public_ip
 KEY_FILE=$KEY_FILE
+DOCUMENTS_BUCKET=$DOCUMENTS_BUCKET
 EOF
 echo "==> Done. Next: scripts/deploy.sh"

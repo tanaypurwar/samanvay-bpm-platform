@@ -26,7 +26,7 @@ tar -C "$HERE" -czf - --exclude=./.env --exclude=./.state --exclude=./scripts --
   | "${ssh_cmd[@]}" 'mkdir -p ~/samanvay && tar xzf - -C ~/samanvay'
 
 echo "==> Starting"
-"${ssh_cmd[@]}" "DOMAIN='$DOMAIN' bash -s" <<'REMOTE'
+"${ssh_cmd[@]}" "DOMAIN='$DOMAIN' DOCUMENTS_BUCKET='${DOCUMENTS_BUCKET:-}' REGION='$REGION' bash -s" <<'REMOTE'
 set -euo pipefail
 cd ~/samanvay
 # files may have been checked out with Windows line endings
@@ -42,6 +42,11 @@ ENGINE_DB_PASSWORD=$(openssl rand -hex 16)
 TASKLIST_DB_PASSWORD=$(openssl rand -hex 16)
 EOF
   echo "    generated ~/samanvay/.env"
+fi
+# documents bucket from provision.sh (the instance role grants access); kept in sync on every deploy
+if [ -n "$DOCUMENTS_BUCKET" ]; then
+  sed -i -e '/^DOCUMENTS_BUCKET=/d' -e '/^DOCUMENTS_REGION=/d' .env
+  printf 'DOCUMENTS_BUCKET=%s\nDOCUMENTS_REGION=%s\n' "$DOCUMENTS_BUCKET" "$REGION" >> .env
 fi
 
 docker compose up -d --build --remove-orphans
